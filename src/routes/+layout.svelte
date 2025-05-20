@@ -1,8 +1,14 @@
 <script lang="ts">
 	import '../app.css';
 	import { ModeWatcher } from 'mode-watcher';
+	import { app, auth } from '$lib/state/shared.svelte';
 
 	import { Button } from '$lib/components/ui/button';
+	import { onMount } from 'svelte';
+
+	onMount(() => {
+		console.log(auth.currentUser);
+	});
 
 	let { children } = $props();
 </script>
