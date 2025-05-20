@@ -1,7 +1,7 @@
 // See https://svelte.dev/docs/kit/types#app.d.ts
 
-import type { FirebaseApp } from 'firebase/app';
-import type { Auth } from 'firebase/auth';
+import type { App as FirebaseApp } from 'firebase-admin/app';
+import type { Auth } from 'firebase-admin/auth';
 
 // for information about these interfaces
 declare global {

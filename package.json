@@ -49,6 +49,7 @@
 	},
 	"dependencies": {
 		"firebase": "^11.7.3",
+		"firebase-admin": "^13.4.0",
 		"mode-watcher": "0.5.1"
 	}
 }
