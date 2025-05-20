@@ -48,6 +48,7 @@
 		"vitest": "^3.0.0"
 	},
 	"dependencies": {
+		"firebase": "^11.7.3",
 		"mode-watcher": "0.5.1"
 	}
 }
