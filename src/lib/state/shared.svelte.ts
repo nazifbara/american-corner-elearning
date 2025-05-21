@@ -1,9 +1,7 @@
-import { PUBLIC_FIREBASE_CONFIG_JSON } from '$env/static/public';
+import type { User } from 'firebase/auth';
 
-import { initializeApp } from 'firebase/app';
-import { getAuth } from 'firebase/auth';
+type AuthState = {
+	user: User | null;
+};
 
-const firebaseConfig = JSON.parse(PUBLIC_FIREBASE_CONFIG_JSON);
-
-export const app = $state(initializeApp(firebaseConfig));
-export const auth = $state(getAuth(app));
+export const authState: AuthState = $state({ user: null });
