@@ -21,6 +21,7 @@
 				authState.user = user;
 				console.log('User is logged in', user.email);
 			} else {
+				authState.user = null;
 				console.log('User is logged out');
 			}
 		});
@@ -32,6 +33,10 @@
 		authLoading = false;
 	}
 
+	async function handleLogout() {
+		await firebaseAuth.signOut();
+	}
+
 	let { children } = $props();
 </script>
 
@@ -40,7 +45,7 @@
 <div class="mx-auto grid w-full max-w-4xl grid-cols-[30%_1fr] gap-4 px-2 py-4">
 	<aside class="grid gap-2">
 		{#if authState.user}
-			<Button onclick={() => {}}>Logout</Button>
+			<Button onclick={handleLogout}>Logout</Button>
 		{:else}
 			<Button onclick={handleLogin}>Login</Button>
 		{/if}
