@@ -26,6 +26,7 @@
 		"@tailwindcss/container-queries": "^0.1.1",
 		"@tailwindcss/forms": "^0.5.10",
 		"@tailwindcss/typography": "^0.5.16",
+		"@types/jsrsasign": "^10.5.15",
 		"autoprefixer": "^10.4.20",
 		"bits-ui": "^1.4.8",
 		"clsx": "^2.1.1",
@@ -48,8 +49,13 @@
 		"vitest": "^3.0.0"
 	},
 	"dependencies": {
+		"@zoom/videosdk": "^2.1.10",
+		"axios": "^1.9.0",
 		"firebase": "^11.7.3",
 		"firebase-admin": "^13.4.0",
-		"mode-watcher": "0.5.1"
+		"jsonwebtoken": "^9.0.2",
+		"jsrsasign": "^11.1.0",
+		"mode-watcher": "0.5.1",
+		"query-string": "^9.2.0"
 	}
 }
