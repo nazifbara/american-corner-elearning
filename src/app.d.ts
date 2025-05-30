@@ -2,6 +2,7 @@
 
 import type { App as FirebaseApp } from 'firebase-admin/app';
 import type { Auth } from 'firebase-admin/auth';
+import type { Firestore } from 'firebase-admin/firestore';
 
 // for information about these interfaces
 declare global {
@@ -10,6 +11,7 @@ declare global {
 		interface Locals {
 			firebaseApp: FirebaseApp;
 			firebaseAuth: Auth;
+			firestore: Firestore;
 		}
 		// interface PageData {}
 		// interface PageState {}

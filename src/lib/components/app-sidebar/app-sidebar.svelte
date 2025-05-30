@@ -3,13 +3,14 @@
 	import { signInWithPopup } from 'firebase/auth';
 	import { firebaseAuth, authProvider } from '$lib/firebase';
 	import { authState } from '$lib/state/shared.svelte';
+	import { page } from '$app/state';
 
 	import * as Sidebar from '$lib/components/ui/sidebar';
 
 	const items = [
 		{
 			title: 'Cours',
-			url: '#',
+			url: '/',
 			icon: BookIcon
 		},
 		{
@@ -42,7 +43,7 @@
 				<Sidebar.Menu>
 					{#each items as item (item.title)}
 						<Sidebar.MenuItem>
-							<Sidebar.MenuButton>
+							<Sidebar.MenuButton isActive={page.url.pathname === item.url}>
 								{#snippet child({ props })}
 									<a href={item.url} {...props}>
 										<item.icon />

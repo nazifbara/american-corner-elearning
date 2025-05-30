@@ -1,6 +1,7 @@
 import { PUBLIC_FIREBASE_CONFIG_JSON } from '$env/static/public';
 
 import { initializeApp } from 'firebase/app';
+import { getFirestore } from 'firebase/firestore';
 import { getAuth, GoogleAuthProvider } from 'firebase/auth';
 
 const firebaseConfig = JSON.parse(PUBLIC_FIREBASE_CONFIG_JSON);
@@ -10,4 +11,6 @@ provider.addScope('https://www.googleapis.com/auth/userinfo.email');
 
 export const firebaseApp = initializeApp(firebaseConfig);
 export const firebaseAuth = getAuth(firebaseApp);
+export const firestore = getFirestore(firebaseApp);
+
 export const authProvider = provider;
