@@ -9,17 +9,12 @@
 	import { authState } from '$lib/state/shared.svelte';
 	import { firebaseAuth } from '$lib/firebase';
 	import { browser } from '$app/environment';
-	import { checkRedirectResult } from '$lib/firebase/auth';
 
 	let initialized = $state(false);
 
 	$effect(() => {
 		if (browser && !initialized) {
 			initialized = true;
-		}
-
-		if (!authState.user) {
-			checkRedirectResult();
 		}
 
 		onAuthStateChanged(firebaseAuth, (user) => {
