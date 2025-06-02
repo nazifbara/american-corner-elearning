@@ -4,16 +4,22 @@
 	import { onAuthStateChanged } from 'firebase/auth';
 	import * as Sidebar from '$lib/components/ui/sidebar';
 	import { AppSidebar } from '$lib/components/app-sidebar';
+	import { Toaster } from '$lib/components/ui/sonner';
 
 	import { authState } from '$lib/state/shared.svelte';
 	import { firebaseAuth } from '$lib/firebase';
 	import { browser } from '$app/environment';
+	import { checkRedirectResult } from '$lib/firebase/auth';
 
 	let initialized = $state(false);
 
 	$effect(() => {
 		if (browser && !initialized) {
 			initialized = true;
+		}
+
+		if (!authState.user) {
+			checkRedirectResult();
 		}
 
 		onAuthStateChanged(firebaseAuth, (user) => {
@@ -29,6 +35,8 @@
 
 	let { children } = $props();
 </script>
+
+<Toaster />
 
 <ModeWatcher />
 <Sidebar.Provider>
