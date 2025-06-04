@@ -7,10 +7,12 @@
 
 	import * as Sidebar from '$lib/components/ui/sidebar';
 
+	const baseUrl = '/app';
+
 	const items = [
 		{
 			title: 'Cours',
-			url: '/courses',
+			url: `${baseUrl}/courses`,
 			icon: BookIcon
 		},
 		{
