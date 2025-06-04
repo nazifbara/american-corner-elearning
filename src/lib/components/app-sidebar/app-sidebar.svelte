@@ -1,8 +1,6 @@
 <script lang="ts">
-	import { BookIcon, CircleUserIcon, SettingsIcon, LogInIcon, LogOutIcon } from '@lucide/svelte';
-	import { signInWithPopup } from 'firebase/auth';
-	import { firebaseAuth, authProvider } from '$lib/firebase';
-	import { authState } from '$lib/state/shared.svelte';
+	import { BookIcon, CircleUserIcon, SettingsIcon, LogOutIcon } from '@lucide/svelte';
+	import { firebaseAuth } from '$lib/firebase';
 	import { page } from '$app/state';
 
 	import * as Sidebar from '$lib/components/ui/sidebar';
@@ -26,11 +24,6 @@
 			icon: SettingsIcon
 		}
 	];
-
-	async function handleLogin() {
-		const result = await signInWithPopup(firebaseAuth, authProvider);
-		console.log({ result });
-	}
 
 	async function handleLogout() {
 		await firebaseAuth.signOut();
@@ -63,17 +56,10 @@
 	<Sidebar.Footer>
 		<Sidebar.Menu>
 			<Sidebar.MenuItem>
-				{#if authState.user}
-					<Sidebar.MenuButton onclick={handleLogout}>
-						<LogOutIcon />
-						<span>Déconnexion</span>
-					</Sidebar.MenuButton>
-				{:else}
-					<Sidebar.MenuButton onclick={handleLogin}>
-						<LogInIcon />
-						<span>Connexion avec Google</span>
-					</Sidebar.MenuButton>
-				{/if}
+				<Sidebar.MenuButton onclick={handleLogout}>
+					<LogOutIcon />
+					<span>Déconnexion</span>
+				</Sidebar.MenuButton>
 			</Sidebar.MenuItem>
 		</Sidebar.Menu>
 	</Sidebar.Footer>
