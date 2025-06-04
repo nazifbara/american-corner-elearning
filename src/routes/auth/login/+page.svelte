@@ -42,23 +42,35 @@
 		}
 	}
 
-	async function handleLoginWithGoogle(e: Event) {
-		e.preventDefault();
-		const result = await signInWithPopup(firebaseAuth, authProvider);
-		console.log({ result });
+	async function handleLoginWithGoogle() {
+		try {
+			loading = true;
+			await signInWithPopup(firebaseAuth, authProvider);
+		} catch (error) {
+			console.error('Error logging in with Google:', error);
+			loginError = 'Échec de la connexion Google. Veuillez réessayer.';
+		} finally {
+			loading = false;
+		}
 	}
 </script>
 
 <div>
 	<Card.Root class="mx-auto mt-20 max-w-md">
 		<Card.Header>
-			<Card.Title>Bienvenue sur l'application</Card.Title>
-			<Card.Description>Veuillez vous connecter pour continuer.</Card.Description>
+			<Card.Title>Bienvenue</Card.Title>
+			<Card.Description>Veuillez vous connecter pour continuer</Card.Description>
 		</Card.Header>
 		<Card.Content>
-			<form class="grid gap-4" onsubmit={handleLoginWithEmail}>
+			<form
+				class="grid gap-4"
+				onsubmit={(e) => {
+					e.preventDefault();
+					handleLoginWithEmail();
+				}}
+			>
 				<div class="grid gap-2">
-					<Label for="email" class=" text-sm">Email</Label>
+					<Label for="email">Email</Label>
 					<Input
 						id="email"
 						type="email"
@@ -68,7 +80,7 @@
 					/>
 				</div>
 				<div class="grid gap-2">
-					<Label for="password" class=" text-sm">Mot de passe</Label>
+					<Label for="password">Mot de passe</Label>
 					<Input
 						id="password"
 						type="password"
@@ -79,21 +91,24 @@
 				</div>
 				<Button type="submit" disabled={loading}>
 					{#if loading}
-						<Loader2Icon class="animate-spin" />
-					{:else}
-						<span>Se connecter</span>
+						<Loader2Icon class="mr-2 h-4 w-4 animate-spin" />
 					{/if}
+					Se connecter
 				</Button>
 				{#if loginError}
 					<p class="text-destructive text-sm">{loginError}</p>
 				{/if}
 				<div class="grid grid-cols-[1fr_auto_1fr] items-center gap-2">
 					<Separator />
-					<p class="text-muted-foreground text-sm">Ou connectez-vous avec :</p>
+					<p class="text-muted-foreground text-sm">Ou continuer avec</p>
 					<Separator />
 				</div>
 				<Button variant="outline" disabled={loading} onclick={handleLoginWithGoogle}>Google</Button>
-			</form></Card.Content
-		>
+				<div class="text-muted-foreground text-center text-sm">
+					Vous n'avez pas de compte ?
+					<a href="/auth/signup" class="text-primary hover:underline">S'inscrire</a>
+				</div>
+			</form>
+		</Card.Content>
 	</Card.Root>
 </div>

@@ -6,6 +6,8 @@
 	import { firebaseAuth } from '$lib/firebase';
 	import { browser } from '$app/environment';
 	import { goto } from '$app/navigation';
+	import { Toaster } from '$lib/components/ui/sonner';
+	import { ModeWatcher } from 'mode-watcher';
 
 	let initialized = $state(false);
 
@@ -29,5 +31,8 @@
 
 	const { children } = $props();
 </script>
+
+<Toaster />
+<ModeWatcher />
 
 {@render children?.()}
