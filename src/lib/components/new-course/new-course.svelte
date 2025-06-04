@@ -43,7 +43,7 @@
 
 <Dialog.Root bind:open>
 	<Dialog.Trigger>
-		<Button><PlusIcon /> Ajouter un cours</Button>
+		<Button size="sm"><PlusIcon /> Ajouter un cours</Button>
 	</Dialog.Trigger>
 	<Dialog.Content class="sm:max-w-lg">
 		<Dialog.Header>

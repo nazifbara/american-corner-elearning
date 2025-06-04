@@ -10,7 +10,7 @@
 	const items = [
 		{
 			title: 'Cours',
-			url: '/',
+			url: '/courses',
 			icon: BookIcon
 		},
 		{
