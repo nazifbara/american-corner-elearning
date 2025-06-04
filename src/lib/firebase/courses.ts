@@ -1,5 +1,5 @@
 import { firestore } from '$lib/firebase';
-import { collection, getDocs, addDoc } from 'firebase/firestore';
+import { collection, getDocs, addDoc, doc, getDoc } from 'firebase/firestore';
 
 export type Course = {
 	id: string;
@@ -33,5 +33,24 @@ export async function getCourses(): Promise<Course[]> {
 	} catch (error) {
 		console.error('Error fetching courses:', error);
 		throw new Error('Failed to fetch courses');
+	}
+}
+
+export async function getCourse(courseId: string): Promise<Course | null> {
+	try {
+		const docRef = doc(firestore, 'courses', courseId);
+		const docSnap = await getDoc(docRef);
+
+		if (docSnap.exists()) {
+			return {
+				id: docSnap.id,
+				...docSnap.data()
+			} as Course;
+		} else {
+			return null;
+		}
+	} catch (error) {
+		console.error('Error fetching course:', error);
+		throw new Error('Failed to fetch course');
 	}
 }
