@@ -5,6 +5,7 @@
 	import { authState } from '$lib/state/shared.svelte';
 	import { firebaseAuth } from '$lib/firebase';
 	import { browser } from '$app/environment';
+	import { goto } from '$app/navigation';
 
 	let initialized = $state(false);
 
@@ -17,9 +18,11 @@
 			if (user) {
 				authState.user = user;
 				console.log('User is logged in', user.email);
+				goto('/app');
 			} else {
 				authState.user = null;
 				console.log('User is logged out');
+				goto('/auth/login');
 			}
 		});
 	});
