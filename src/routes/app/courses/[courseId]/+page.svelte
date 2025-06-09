@@ -4,11 +4,15 @@
 	import { Button } from '$lib/components/ui/button';
 	import { getCourse, type Course } from '$lib/firebase/courses';
 	import { Loader2Icon } from '@lucide/svelte';
+	import { VideoConference } from '$lib/components/video-conference';
+	import { authState } from '$lib/state/shared.svelte.ts';
 
 	const courseId = page.params.courseId;
 	let course: Course | null = $state(null);
 	let loading = $state(true);
 	let error = $state<string | null>(null);
+	// This should come from your authentication system
+	const userId = crypto.randomUUID();
 
 	$effect(() => {
 		loadCourse();
@@ -44,17 +48,29 @@
 			</Card.Content>
 		</Card.Root>
 	{:else if course}
-		<Card.Root>
-			<Card.Header>
-				<Card.Title>{course.title}</Card.Title>
-				<Card.Description>{course.description}</Card.Description>
-			</Card.Header>
-			<Card.Content>
-				<!-- Course content will go here -->
-			</Card.Content>
-			<Card.Footer class="flex justify-between">
-				<Button href="/app/courses" variant="outline">Retour aux cours</Button>
-			</Card.Footer>
-		</Card.Root>
+		<div class="space-y-4">
+			<Card.Root>
+				<Card.Header>
+					<Card.Title>{course.title}</Card.Title>
+					<Card.Description>{course.description}</Card.Description>
+				</Card.Header>
+				<Card.Content>
+					<!-- Course content will go here -->
+				</Card.Content>
+				<Card.Footer class="flex justify-between">
+					<Button href="/app/courses" variant="outline">Retour aux cours</Button>
+				</Card.Footer>
+			</Card.Root>
+
+			<Card.Root>
+				<Card.Header>
+					<Card.Title>Conférence vidéo</Card.Title>
+					<Card.Description>Rejoignez la conférence vidéo pour ce cours</Card.Description>
+				</Card.Header>
+				<Card.Content>
+					<VideoConference channelName={courseId} userId={authState.user!.uid} />
+				</Card.Content>
+			</Card.Root>
+		</div>
 	{/if}
 </div>

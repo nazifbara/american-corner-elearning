@@ -3,7 +3,6 @@
 	import { getCourses, type Course } from '$lib/firebase/courses';
 	import { Separator } from '$lib/components/ui/separator';
 	import * as Card from '$lib/components/ui/card';
-	import { Button } from '$lib/components/ui/button';
 	import { Loader2Icon } from '@lucide/svelte';
 	import NewCourse from '$lib/components/new-course/new-course.svelte';
 
