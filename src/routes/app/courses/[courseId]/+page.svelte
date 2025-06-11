@@ -5,7 +5,7 @@
 	import { getCourse, type Course } from '$lib/firebase/courses';
 	import { Loader2Icon } from '@lucide/svelte';
 	import { VideoConference } from '$lib/components/video-conference';
-	import { authState } from '$lib/state/shared.svelte.ts';
+	import { authState } from '$lib/state/shared.svelte';
 
 	const courseId = page.params.courseId;
 	let course: Course | null = $state(null);

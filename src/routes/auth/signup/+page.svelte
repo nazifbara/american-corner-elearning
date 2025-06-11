@@ -6,8 +6,11 @@
 	import { Input } from '$lib/components/ui/input';
 	import { Label } from '$lib/components/ui/label';
 	import { Loader2Icon } from '@lucide/svelte';
+	import { createProfile } from '$lib/firebase/profiles';
+	import { goto } from '$app/navigation';
 
 	let email = $state('');
+	let displayName = $state('');
 	let password = $state('');
 	let confirmPassword = $state('');
 	let loading = $state(false);
@@ -28,7 +31,20 @@
 
 		loading = true;
 		try {
-			await createUserWithEmailAndPassword(firebaseAuth, email, password);
+			const userCredential = await createUserWithEmailAndPassword(firebaseAuth, email, password);
+
+			// Create user profile
+			await createProfile({
+				uid: userCredential.user.uid,
+				email: userCredential.user.email!,
+				displayName: displayName || null,
+				photoURL: userCredential.user.photoURL,
+				createdAt: new Date(),
+				updatedAt: new Date()
+			});
+
+			// Redirect to app after successful signup and profile creation
+			goto('/app');
 		} catch (error: any) {
 			console.error('Signup error:', error);
 			if (error.code === 'auth/email-already-in-use') {
@@ -46,7 +62,7 @@
 	<Card.Root class="mx-auto mt-20 max-w-md">
 		<Card.Header>
 			<Card.Title>Créer un compte</Card.Title>
-			<Card.Description>Entrez votre email pour créer votre compte</Card.Description>
+			<Card.Description>Entrez vos informations pour créer votre compte</Card.Description>
 		</Card.Header>
 		<Card.Content>
 			<form
@@ -59,6 +75,10 @@
 				<div class="grid gap-2">
 					<Label for="email">Email</Label>
 					<Input id="email" type="email" placeholder="m@example.com" required bind:value={email} />
+				</div>
+				<div class="grid gap-2">
+					<Label for="displayName">Nom complet</Label>
+					<Input id="displayName" type="text" placeholder="John Doe" bind:value={displayName} />
 				</div>
 				<div class="grid gap-2">
 					<Label for="password">Mot de passe</Label>
