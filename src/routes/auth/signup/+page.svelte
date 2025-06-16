@@ -39,6 +39,7 @@
 				email: userCredential.user.email!,
 				displayName: displayName || null,
 				photoURL: userCredential.user.photoURL,
+				courses: {},
 				createdAt: new Date(),
 				updatedAt: new Date()
 			});

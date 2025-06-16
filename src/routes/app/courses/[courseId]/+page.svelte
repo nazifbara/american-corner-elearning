@@ -5,14 +5,13 @@
 	import { getCourse, type Course } from '$lib/firebase/courses';
 	import { Loader2Icon } from '@lucide/svelte';
 	import { VideoConference } from '$lib/components/video-conference';
+	import { CourseParticipants } from '$lib/components/course-participants';
 	import { authState } from '$lib/state/shared.svelte';
 
 	const courseId = page.params.courseId;
 	let course: Course | null = $state(null);
 	let loading = $state(true);
 	let error = $state<string | null>(null);
-	// This should come from your authentication system
-	const userId = crypto.randomUUID();
 
 	$effect(() => {
 		loadCourse();
@@ -62,15 +61,20 @@
 				</Card.Footer>
 			</Card.Root>
 
-			<Card.Root>
-				<Card.Header>
-					<Card.Title>Conférence vidéo</Card.Title>
-					<Card.Description>Rejoignez la conférence vidéo pour ce cours</Card.Description>
-				</Card.Header>
-				<Card.Content>
-					<VideoConference channelName={courseId} userId={authState.user!.uid} />
-				</Card.Content>
-			</Card.Root>
+			<div class="grid gap-4 md:grid-cols-2">
+				<CourseParticipants {course} />
+				{#if course.participants[authState.user!.uid]}
+					<Card.Root>
+						<Card.Header>
+							<Card.Title>Conférence vidéo</Card.Title>
+							<Card.Description>Rejoignez la conférence vidéo pour ce cours</Card.Description>
+						</Card.Header>
+						<Card.Content>
+							<VideoConference channelName={courseId} userId={authState.user!.uid} />
+						</Card.Content>
+					</Card.Root>
+				{/if}
+			</div>
 		</div>
 	{/if}
 </div>

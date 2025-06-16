@@ -1,17 +1,27 @@
 import { firestore } from '.';
-import { doc, setDoc, getDoc, type DocumentReference } from 'firebase/firestore';
+import {
+	doc,
+	setDoc,
+	getDoc,
+	getDocs,
+	where,
+	query,
+	type DocumentReference,
+	collection
+} from 'firebase/firestore';
 
-export interface UserProfile {
+export interface Profile {
 	uid: string;
 	email: string;
 	displayName: string | null;
 	photoURL: string | null;
+	courses: Record<string, true>;
 	createdAt: Date;
 	updatedAt: Date;
 }
 
-export async function createProfile(profile: UserProfile): Promise<void> {
-	const profileRef = doc(firestore, 'profiles', profile.uid) as DocumentReference<UserProfile>;
+export async function createProfile(profile: Profile): Promise<void> {
+	const profileRef = doc(firestore, 'profiles', profile.uid) as DocumentReference<Profile>;
 	await setDoc(profileRef, {
 		...profile,
 		createdAt: new Date(),
@@ -19,8 +29,24 @@ export async function createProfile(profile: UserProfile): Promise<void> {
 	});
 }
 
-export async function getProfile(uid: string): Promise<UserProfile | null> {
-	const profileRef = doc(firestore, 'profiles', uid) as DocumentReference<UserProfile>;
+export async function getProfile(uid: string): Promise<Profile | null> {
+	const profileRef = doc(firestore, 'profiles', uid) as DocumentReference<Profile>;
 	const profile = await getDoc(profileRef);
-	return profile.exists() ? (profile.data() as UserProfile) : null;
+	return profile.exists() ? (profile.data() as Profile) : null;
+}
+
+// get list of profiles
+export async function getProfiles(except: string[] = []): Promise<Profile[]> {
+	const profiles: Profile[] = [];
+
+	const profilesRef = collection(firestore, 'profiles');
+	const q = query(profilesRef, where('uid', 'not-in', except));
+	const querySnapshot = await getDocs(q);
+	querySnapshot.forEach((doc) => {
+		profiles.push({
+			uid: doc.id,
+			...doc.data()
+		} as Profile);
+	});
+	return profiles;
 }

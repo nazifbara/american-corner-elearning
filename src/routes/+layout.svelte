@@ -8,6 +8,8 @@
 	import { goto } from '$app/navigation';
 	import { Toaster } from '$lib/components/ui/sonner';
 	import { ModeWatcher } from 'mode-watcher';
+	import { getProfiles } from '$lib/firebase/profiles';
+	import { profilesState } from '$lib/state/shared.svelte';
 
 	let initialized = $state(false);
 
@@ -15,6 +17,10 @@
 		if (browser && !initialized) {
 			initialized = true;
 		}
+		getProfiles().then((profiles) => {
+			profilesState.profiles = profiles;
+			profilesState.loading = false;
+		});
 
 		onAuthStateChanged(firebaseAuth, (user) => {
 			if (user) {
