@@ -3,12 +3,12 @@ import {
 	collection,
 	getDocs,
 	addDoc,
-	deleteDoc,
 	doc,
 	getDoc,
 	updateDoc,
 	where,
-	query
+	query,
+	deleteField
 } from 'firebase/firestore';
 
 export type Course = {
@@ -77,7 +77,7 @@ export async function addParticipant(courseId: string, userId: string): Promise<
 	try {
 		const courseRef = doc(firestore, 'courses', courseId);
 		const profileRef = doc(firestore, 'profiles', userId);
-		Promise.all([
+		await Promise.all([
 			updateDoc(courseRef, {
 				[`participants.${userId}`]: true
 			}),
@@ -93,9 +93,12 @@ export async function addParticipant(courseId: string, userId: string): Promise<
 
 export async function removeParticipant(courseId: string, userId: string): Promise<void> {
 	try {
-		const courseParticipantRef = doc(firestore, 'courses', `${courseId}/participants/${userId}`);
-		const profileCourseRef = doc(firestore, 'profiles', `${userId}/courses/${courseId}`);
-		Promise.all([deleteDoc(courseParticipantRef), deleteDoc(profileCourseRef)]);
+		const courseParticipantRef = doc(firestore, 'courses', courseId);
+		const profileCourseRef = doc(firestore, 'profiles', userId);
+		await Promise.all([
+			updateDoc(courseParticipantRef, { [`participants.${userId}`]: deleteField() }),
+			updateDoc(profileCourseRef, { [`courses.${courseId}`]: deleteField() })
+		]);
 	} catch (error) {
 		console.error('Error removing participant:', error);
 		throw new Error('Failed to remove participant');

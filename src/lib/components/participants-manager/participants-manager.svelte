@@ -1,27 +1,29 @@
 <script lang="ts">
 	import * as Dialog from '$lib/components/ui/dialog';
-	import * as Command from '$lib/components/ui/command';
 	import { Button } from '$lib/components/ui/button';
 	import { Input } from '$lib/components/ui/input';
 	import { getProfiles, type Profile } from '$lib/firebase/profiles';
-	import { Loader2Icon, UserPlusIcon, SearchIcon, UserMinusIcon, CheckIcon } from '@lucide/svelte';
+	import { Loader2Icon, UserPlusIcon, SearchIcon, CheckIcon, UserCog } from '@lucide/svelte';
 	import { authState } from '$lib/state/shared.svelte';
-	import { addParticipant } from '$lib/firebase/courses';
+	import { addParticipant, removeParticipant } from '$lib/firebase/courses';
 	import { toast } from 'svelte-sonner';
 
 	type Props = {
-		participantIds: string[];
+		participants: Record<string, Profile | null>;
 		courseId: string;
-		onAddParticipant?: (profile: Profile) => void;
 	};
 
-	let { participantIds = $bindable(), onAddParticipant, courseId }: Props = $props();
+	let { participants = $bindable(), courseId }: Props = $props();
 	let open = $state(false);
 	let searchQuery = $state('');
 	let allProfiles = $state<Profile[]>([]);
 	let loading = $state(false);
 	let searchResults = $state<Profile[]>([]);
 	let pendingAdditions = $state<string[]>([]);
+	let participantIds = $derived(
+		Object.keys(participants).filter((id) => participants[id] !== null)
+	);
+
 	let list = $derived.by(() => {
 		return searchQuery ? searchResults : allProfiles;
 	});
@@ -80,16 +82,36 @@
 			return;
 		}
 
-		pendingAdditions.push(profile.uid);
+		pendingAdditions = [...pendingAdditions, profile.uid];
 
 		try {
 			await addParticipant(courseId, profile.uid);
-			pendingAdditions = pendingAdditions.filter((id) => id !== profile.uid);
-			participantIds.push(profile.uid);
-			onAddParticipant?.(profile);
+			participantIds = [...participantIds, profile.uid];
+			participants[profile.uid] = profile;
 		} catch (error) {
 			console.error('Error adding participant:', error);
 			toast.error("Une erreur s'est produite lors de l'ajout du participant");
+		} finally {
+			pendingAdditions = pendingAdditions.filter((id) => id !== profile.uid);
+		}
+	}
+
+	async function handleUnselect(profile: Profile) {
+		if (!participantIds.includes(profile.uid) || pendingAdditions.includes(profile.uid)) {
+			return;
+		}
+
+		pendingAdditions.push(profile.uid);
+
+		try {
+			await removeParticipant(courseId, profile.uid);
+			participantIds = participantIds.filter((id) => id !== profile.uid);
+			delete participants[profile.uid];
+		} catch (error) {
+			console.error('Error removing participant:', error);
+			toast.error("Une erreur s'est produite lors de la suppression du participant");
+		} finally {
+			pendingAdditions = pendingAdditions.filter((id) => id !== profile.uid);
 		}
 	}
 </script>
@@ -97,8 +119,8 @@
 <Dialog.Root bind:open>
 	<Dialog.Trigger>
 		<Button variant="outline" class="w-full">
-			<UserPlusIcon class="mr-2 h-4 w-4" />
-			Ajouter des participants
+			<UserCog class="mr-2 h-4 w-4" />
+			Géerer les participants
 		</Button>
 	</Dialog.Trigger>
 	<Dialog.Content class="max-w-md">
@@ -129,7 +151,10 @@
 						<li class="-mx-6">
 							<button
 								class="{getListItemClass(profile)} flex w-full items-start gap-2 px-6 py-2"
-								onclick={() => handleSelect(profile)}
+								onclick={() =>
+									participantIds.includes(profile.uid)
+										? handleUnselect(profile)
+										: handleSelect(profile)}
 							>
 								{#if pendingAdditions.includes(profile.uid)}
 									<Loader2Icon class="h-4 w-4 animate-spin" />

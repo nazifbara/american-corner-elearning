@@ -1,12 +1,11 @@
 <script lang="ts">
-	import { Button } from '$lib/components/ui/button';
 	import * as Card from '$lib/components/ui/card';
-	import { addParticipant, removeParticipant, type Course } from '$lib/firebase/courses';
+	import { type Course } from '$lib/firebase/courses';
 	import type { Profile } from '$lib/firebase/profiles';
 	import { getProfile } from '$lib/firebase/profiles';
 	import { authState } from '$lib/state/shared.svelte';
 	import { ParticipantsManager } from '$lib/components/participants-manager';
-	import { Loader2Icon, UserIcon, UserMinusIcon, UserPlusIcon } from '@lucide/svelte';
+	import { Loader2Icon } from '@lucide/svelte';
 
 	type Props = {
 		course: Course;
@@ -47,31 +46,7 @@
 		}
 	}
 
-	// async function handleAddParticipant(userId: string) {
-	// 	try {
-	// 		await addParticipant(course.id, userId);
-	// 		course.participants[userId] = true;
-	// 		const profile = await getProfile(userId);
-	// 		participants[userId] = profile;
-	// 	} catch (e) {
-	// 		console.error('Error adding participant:', e);
-	// 		error = "Une erreur s'est produite lors de l'ajout du participant";
-	// 	}
-	// }
-
-	async function handleRemoveParticipant(userId: string) {
-		try {
-			await removeParticipant(course.id, userId);
-			delete course.participants[userId];
-			delete participants[userId];
-		} catch (e) {
-			console.error('Error removing participant:', e);
-			error = "Une erreur s'est produite lors de la suppression du participant";
-		}
-	}
-
 	const isCreator = course.userId === currentUserId;
-	const isParticipant = course.participants[currentUserId] === true;
 </script>
 
 <Card.Root>
@@ -93,43 +68,14 @@
 		{:else if error}
 			<p class="text-destructive text-sm">{error}</p>
 		{:else}
-			{#if isCreator}
-				<ParticipantsManager
-					bind:participantIds
-					courseId={course.id}
-					onAddParticipant={(profile) => {
-						participants[profile.uid] = profile;
-					}}
-				/>
-			{/if}
-
 			<div class="space-y-4">
-				<!-- {#if !isParticipant && !isCreator}
-					<Button
-						class="w-full"
-						variant="outline"
-						onclick={() => handleAddParticipant(currentUserId)}
-					>
-						<UserPlusIcon class="mr-2 h-4 w-4" />
-						Rejoindre le cours
-					</Button>
-				{/if} -->
-
+				{#if isCreator}
+					<ParticipantsManager bind:participants courseId={course.id} />
+				{/if}
 				<div class="divide-y">
 					{#each Object.entries(participants) as [userId, profile]}
 						<div class="flex items-center justify-between py-2">
 							<div class="flex items-center gap-2">
-								{#if profile?.photoURL}
-									<img
-										src={profile.photoURL}
-										alt={profile.displayName || profile.email}
-										class="h-8 w-8 rounded-full"
-									/>
-								{:else}
-									<div class="bg-muted flex h-8 w-8 items-center justify-center rounded-full">
-										<UserIcon class="h-4 w-4" />
-									</div>
-								{/if}
 								<div>
 									<p class="font-medium">
 										{profile?.displayName || profile?.email || 'Utilisateur inconnu'}
@@ -139,11 +85,6 @@
 									{/if}
 								</div>
 							</div>
-							{#if isCreator && userId !== currentUserId}
-								<Button variant="ghost" size="sm" onclick={() => handleRemoveParticipant(userId)}>
-									<UserMinusIcon class="h-4 w-4" />
-								</Button>
-							{/if}
 						</div>
 					{/each}
 				</div>
