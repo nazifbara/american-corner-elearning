@@ -4,27 +4,24 @@
 	import { Button } from '$lib/components/ui/button';
 	import { Input } from '$lib/components/ui/input';
 	import { getProfiles, type Profile } from '$lib/firebase/profiles';
-	import {
-		Loader2Icon,
-		UserPlusIcon,
-		UserIcon,
-		SearchIcon,
-		CheckIcon,
-		PlusIcon
-	} from '@lucide/svelte';
+	import { Loader2Icon, UserPlusIcon, SearchIcon, UserMinusIcon, CheckIcon } from '@lucide/svelte';
 	import { authState } from '$lib/state/shared.svelte';
+	import { addParticipant } from '$lib/firebase/courses';
+	import { toast } from 'svelte-sonner';
 
 	type Props = {
-		participants: Record<string, Profile | null>;
-		onAddParticipant?: (userId: string) => void;
+		participantIds: string[];
+		courseId: string;
+		onAddParticipant?: (profile: Profile) => void;
 	};
 
-	let { participants, onAddParticipant }: Props = $props();
+	let { participantIds = $bindable(), onAddParticipant, courseId }: Props = $props();
 	let open = $state(false);
 	let searchQuery = $state('');
 	let allProfiles = $state<Profile[]>([]);
 	let loading = $state(false);
 	let searchResults = $state<Profile[]>([]);
+	let pendingAdditions = $state<string[]>([]);
 	let list = $derived.by(() => {
 		return searchQuery ? searchResults : allProfiles;
 	});
@@ -33,7 +30,19 @@
 		if (open && allProfiles.length === 0) {
 			loadProfiles();
 		}
+
+		if (!open) {
+			searchQuery = '';
+			searchResults = [];
+		}
 	});
+
+	function getListItemClass(profile: Profile) {
+		if (participantIds.includes(profile.uid) || pendingAdditions.includes(profile.uid)) {
+			return 'bg-muted';
+		}
+		return 'hover:bg-muted';
+	}
 
 	async function loadProfiles() {
 		try {
@@ -65,10 +74,23 @@
 		}
 	}
 
-	function handleSelect(profile: Profile) {
-		onAddParticipant?.(profile.uid);
-		searchQuery = '';
-		open = false;
+	async function handleSelect(profile: Profile) {
+		if (participantIds.includes(profile.uid) || pendingAdditions.includes(profile.uid)) {
+			console.warn('Participant already added:', profile.uid);
+			return;
+		}
+
+		pendingAdditions.push(profile.uid);
+
+		try {
+			await addParticipant(courseId, profile.uid);
+			pendingAdditions = pendingAdditions.filter((id) => id !== profile.uid);
+			participantIds.push(profile.uid);
+			onAddParticipant?.(profile);
+		} catch (error) {
+			console.error('Error adding participant:', error);
+			toast.error("Une erreur s'est produite lors de l'ajout du participant");
+		}
 	}
 </script>
 
@@ -104,20 +126,27 @@
 			{:else}
 				<ul>
 					{#each list as profile (profile.uid)}
-						<li class="flex items-start gap-2 py-2">
-							<Button variant="ghost" size="icon">
-								<UserPlusIcon />
-							</Button>
-							<div class="flex items-center gap-3">
-								<div class="flex flex-col">
+						<li class="-mx-6">
+							<button
+								class="{getListItemClass(profile)} flex w-full items-start gap-2 px-6 py-2"
+								onclick={() => handleSelect(profile)}
+							>
+								{#if pendingAdditions.includes(profile.uid)}
+									<Loader2Icon class="h-4 w-4 animate-spin" />
+								{:else if participantIds.includes(profile.uid)}
+									<CheckIcon class="h-4 w-4" />
+								{:else}
+									<UserPlusIcon class="h-4 w-4" />
+								{/if}
+								<div class="flex flex-col items-start">
 									<span class="text-sm font-medium">
 										{profile.displayName || 'Sans nom'}
 									</span>
-									<span class="text-muted-foreground text-sm">
+									<span class="text-sm">
 										{profile.email}
 									</span>
 								</div>
-							</div>
+							</button>
 						</li>
 					{/each}
 				</ul>

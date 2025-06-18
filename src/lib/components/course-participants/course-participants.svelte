@@ -15,6 +15,7 @@
 	const currentUserId = authState.user!.uid;
 
 	let participants = $state<Record<string, Profile | null>>({});
+	let participantIds = $derived(Object.keys(participants));
 	let loading = $state(true);
 	let error = $state<string | null>(null);
 
@@ -37,6 +38,7 @@
 			);
 
 			participants = Object.fromEntries(profiles);
+			console.log('Participants loaded:', participants);
 		} catch (e) {
 			console.error('Error loading participants:', e);
 			error = "Une erreur s'est produite lors du chargement des participants";
@@ -45,17 +47,17 @@
 		}
 	}
 
-	async function handleAddParticipant(userId: string) {
-		try {
-			await addParticipant(course.id, userId);
-			course.participants[userId] = true;
-			const profile = await getProfile(userId);
-			participants[userId] = profile;
-		} catch (e) {
-			console.error('Error adding participant:', e);
-			error = "Une erreur s'est produite lors de l'ajout du participant";
-		}
-	}
+	// async function handleAddParticipant(userId: string) {
+	// 	try {
+	// 		await addParticipant(course.id, userId);
+	// 		course.participants[userId] = true;
+	// 		const profile = await getProfile(userId);
+	// 		participants[userId] = profile;
+	// 	} catch (e) {
+	// 		console.error('Error adding participant:', e);
+	// 		error = "Une erreur s'est produite lors de l'ajout du participant";
+	// 	}
+	// }
 
 	async function handleRemoveParticipant(userId: string) {
 		try {
@@ -92,11 +94,17 @@
 			<p class="text-destructive text-sm">{error}</p>
 		{:else}
 			{#if isCreator}
-				<ParticipantsManager {participants} onAddParticipant={handleAddParticipant} />
+				<ParticipantsManager
+					bind:participantIds
+					courseId={course.id}
+					onAddParticipant={(profile) => {
+						participants[profile.uid] = profile;
+					}}
+				/>
 			{/if}
 
 			<div class="space-y-4">
-				{#if !isParticipant && !isCreator}
+				<!-- {#if !isParticipant && !isCreator}
 					<Button
 						class="w-full"
 						variant="outline"
@@ -105,7 +113,7 @@
 						<UserPlusIcon class="mr-2 h-4 w-4" />
 						Rejoindre le cours
 					</Button>
-				{/if}
+				{/if} -->
 
 				<div class="divide-y">
 					{#each Object.entries(participants) as [userId, profile]}
