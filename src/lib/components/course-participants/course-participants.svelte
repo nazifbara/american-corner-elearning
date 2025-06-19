@@ -14,7 +14,6 @@
 	const currentUserId = authState.user!.uid;
 
 	let participants = $state<Record<string, Profile | null>>({});
-	let participantIds = $derived(Object.keys(participants));
 	let loading = $state(true);
 	let error = $state<string | null>(null);
 

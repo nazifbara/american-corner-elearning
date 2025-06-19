@@ -8,7 +8,8 @@ import {
 	updateDoc,
 	where,
 	query,
-	deleteField
+	deleteField,
+	onSnapshot
 } from 'firebase/firestore';
 
 export type Course = {
@@ -168,4 +169,18 @@ export async function endCourse(courseId: string): Promise<void> {
 		console.error('Error ending course:', error);
 		throw new Error('Failed to end course');
 	}
+}
+
+export function subscribeToCourse(courseId: string, callback: (course: Course | null) => void) {
+	const courseRef = doc(firestore, 'courses', courseId);
+	return onSnapshot(courseRef, (snapshot) => {
+		if (snapshot.exists()) {
+			callback({
+				id: snapshot.id,
+				...snapshot.data()
+			} as Course);
+		} else {
+			callback(null);
+		}
+	});
 }

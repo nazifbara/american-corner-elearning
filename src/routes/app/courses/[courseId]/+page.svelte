@@ -8,39 +8,44 @@
 	import { VideoConference } from '$lib/components/video-conference';
 	import { CourseParticipants } from '$lib/components/course-participants';
 	import { authState } from '$lib/state/shared.svelte';
-	import { onMount } from 'svelte';
+	import { onMount, onDestroy } from 'svelte';
+	import { subscribeToCourse } from '$lib/firebase/courses';
 
 	const courseId = page.params.courseId;
 	let course: Course | null = $state(null);
 	let loading = $state(true);
 	let creator = $state<Profile | null>(null);
 	let error = $state<string | null>(null);
+	let unsubscribe: (() => void) | null = null;
 	let allowedUserIds = $derived.by(() => {
 		return [authState.user!.uid, ...Object.keys(course?.participants || {})];
 	});
 
-	onMount(async () => {
-		loadCourse();
-	});
-
-	async function loadCourse() {
-		try {
-			course = await getCourse(courseId);
-			if (!course) {
+	onMount(() => {
+		// Subscribe to real-time course updates
+		unsubscribe = subscribeToCourse(courseId, async (updatedCourse) => {
+			if (!updatedCourse) {
 				error = 'Cours non trouvé';
-				return null;
+				course = null;
+				return;
 			}
 
-			// Load creator's profile
-			creator = await getProfile(course.userId);
-			return course;
-		} catch (e) {
-			console.error('Error loading course:', e);
-			error = "Une erreur s'est produite lors du chargement du cours";
-		} finally {
+			course = updatedCourse;
+
+			// Load creator's profile if not already loaded or if creator changed
+			if (!creator || creator.uid !== course.userId) {
+				creator = await getProfile(course.userId);
+			}
 			loading = false;
+		});
+	});
+
+	onDestroy(() => {
+		// Clean up subscription when component is destroyed
+		if (unsubscribe) {
+			unsubscribe();
 		}
-	}
+	});
 </script>
 
 <div class="container mx-auto p-4">
