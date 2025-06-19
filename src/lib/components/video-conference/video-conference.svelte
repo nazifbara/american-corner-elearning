@@ -135,7 +135,7 @@
 </script>
 
 <div class="flex flex-col gap-4">
-	<div class="flex justify-end gap-2">
+	<div class="flex gap-2">
 		{#if !joined}
 			<Button onclick={joinChannel} disabled={joining}>
 				{#if joining}

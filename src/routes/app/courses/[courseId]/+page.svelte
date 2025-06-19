@@ -3,17 +3,23 @@
 	import * as Card from '$lib/components/ui/card';
 	import { Button } from '$lib/components/ui/button';
 	import { getCourse, type Course } from '$lib/firebase/courses';
+	import { getProfile, type Profile } from '$lib/firebase/profiles';
 	import { Loader2Icon } from '@lucide/svelte';
 	import { VideoConference } from '$lib/components/video-conference';
 	import { CourseParticipants } from '$lib/components/course-participants';
 	import { authState } from '$lib/state/shared.svelte';
+	import { onMount } from 'svelte';
 
 	const courseId = page.params.courseId;
 	let course: Course | null = $state(null);
 	let loading = $state(true);
+	let creator = $state<Profile | null>(null);
 	let error = $state<string | null>(null);
+	let allowedUserIds = $derived.by(() => {
+		return [authState.user!.uid, ...Object.keys(course?.participants || {})];
+	});
 
-	$effect(() => {
+	onMount(async () => {
 		loadCourse();
 	});
 
@@ -22,7 +28,12 @@
 			course = await getCourse(courseId);
 			if (!course) {
 				error = 'Cours non trouvé';
+				return null;
 			}
+
+			// Load creator's profile
+			creator = await getProfile(course.userId);
+			return course;
 		} catch (e) {
 			console.error('Error loading course:', e);
 			error = "Une erreur s'est produite lors du chargement du cours";
@@ -50,7 +61,14 @@
 		<div class="space-y-4">
 			<Card.Root>
 				<Card.Header>
-					<Card.Title>{course.title}</Card.Title>
+					<Card.Title>
+						{course.title}
+						{#if creator}
+							<span class="text-muted-foreground text-sm font-normal">
+								par {creator.displayName || creator.email}
+							</span>
+						{/if}
+					</Card.Title>
 					<Card.Description>{course.description}</Card.Description>
 				</Card.Header>
 				<Card.Content>
@@ -63,17 +81,21 @@
 
 			<div class="grid gap-4 md:grid-cols-2">
 				<CourseParticipants {course} />
-				{#if course.participants[authState.user!.uid]}
-					<Card.Root>
-						<Card.Header>
-							<Card.Title>Conférence vidéo</Card.Title>
-							<Card.Description>Rejoignez la conférence vidéo pour ce cours</Card.Description>
-						</Card.Header>
-						<Card.Content>
-							<VideoConference channelName={courseId} userId={authState.user!.uid} />
-						</Card.Content>
-					</Card.Root>
-				{/if}
+				<Card.Root>
+					<Card.Header>
+						<Card.Title>Conférence vidéo</Card.Title>
+						<Card.Description>Rejoignez la conférence vidéo pour ce cours</Card.Description>
+					</Card.Header>
+					<Card.Content>
+						{#if allowedUserIds.includes(authState.user!.uid)}
+							<VideoConference channelName={course.id} userId={authState.user!.uid} />
+						{:else}
+							<p class="text-muted-foreground">
+								Vous n'êtes pas autorisé à rejoindre cette conférence vidéo.
+							</p>
+						{/if}
+					</Card.Content>
+				</Card.Root>
 			</div>
 		</div>
 	{/if}

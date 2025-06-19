@@ -120,7 +120,7 @@
 	<Dialog.Trigger>
 		<Button variant="outline" class="w-full">
 			<UserCog class="mr-2 h-4 w-4" />
-			Géerer les participants
+			Gérer les participants
 		</Button>
 	</Dialog.Trigger>
 	<Dialog.Content class="max-w-md">
