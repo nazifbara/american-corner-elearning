@@ -17,20 +17,27 @@ export type Course = {
 	title: string;
 	description: string;
 	participants: Record<string, true>;
+	startedAt: Date | null;
 	createdAt: Date;
 	updatedAt: Date;
 };
 
+export type CourseData = Omit<
+	Course,
+	'id' | 'startedAt' | 'createdAt' | 'updatedAt' | 'participants'
+>;
+
 const courseRef = collection(firestore, 'courses');
-export async function addCourse(course: Omit<Course, 'id'>): Promise<Course> {
+export async function addCourse(data: CourseData): Promise<Course> {
 	try {
 		const newCourse = {
-			...course,
+			...data,
 			createdAt: new Date(),
-			updatedAt: new Date()
+			updatedAt: new Date(),
+			participants: {}
 		};
 		const docRef = await addDoc(collection(firestore, 'courses'), newCourse);
-		return { id: docRef.id, ...newCourse };
+		return { id: docRef.id, startedAt: null, ...newCourse };
 	} catch (error) {
 		console.error('Error adding course:', error);
 		throw new Error('Failed to add course');
@@ -136,5 +143,17 @@ export async function getParticipatingCourses(userId: string): Promise<Course[]>
 	} catch (error) {
 		console.error('Error fetching participating courses:', error);
 		throw new Error('Failed to fetch participating courses');
+	}
+}
+
+export async function startCourse(courseId: string): Promise<void> {
+	try {
+		const courseRef = doc(firestore, 'courses', courseId);
+		await updateDoc(courseRef, {
+			startedAt: new Date()
+		});
+	} catch (error) {
+		console.error('Error starting course:', error);
+		throw new Error('Failed to start course');
 	}
 }

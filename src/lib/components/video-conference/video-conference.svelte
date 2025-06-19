@@ -4,13 +4,18 @@
 	import { Button } from '$lib/components/ui/button';
 	import { PUBLIC_AGORA_APP_ID } from '$env/static/public';
 	import { Loader2Icon } from '@lucide/svelte';
+	import { startCourse } from '$lib/firebase/courses';
 
 	type Props = {
 		channelName: string;
 		userId: string;
+		courseId: string;
+		startedAt: Date | null;
+		creatorId: string;
 	};
 
-	const { channelName, userId }: Props = $props();
+	const { channelName, userId, courseId, startedAt, creatorId }: Props = $props();
+	const isCreator = userId === creatorId;
 
 	const appId = PUBLIC_AGORA_APP_ID;
 
@@ -108,6 +113,13 @@
 			await client.join(appId, channelName, token, userId);
 			joined = true;
 
+			// Start the course if creator and not already started
+			if (!startedAt && isCreator) {
+				await startCourse(courseId);
+			} else if (!startedAt && !isCreator) {
+				throw new Error("Le cours n'a pas encore commencé");
+			}
+
 			// Create and publish local tracks
 			[localAudioTrack, localVideoTrack] = await AgoraRTC.createMicrophoneAndCameraTracks();
 			await client.publish([localAudioTrack, localVideoTrack]);
@@ -137,12 +149,16 @@
 <div class="flex flex-col gap-4">
 	<div class="flex gap-2">
 		{#if !joined}
-			<Button onclick={joinChannel} disabled={joining}>
-				{#if joining}
-					<Loader2Icon size={20} class="animate-spin" />
-				{/if}
-				Rejoindre la conférence
-			</Button>
+			{#if !startedAt && !isCreator}
+				<p class="text-muted-foreground text-sm">En attente du début du cours par le créateur...</p>
+			{:else}
+				<Button onclick={joinChannel} disabled={joining}>
+					{#if joining}
+						<Loader2Icon size={20} class="animate-spin" />
+					{/if}
+					{isCreator && !startedAt ? 'Commencer la conférence' : 'Rejoindre la conférence'}
+				</Button>
+			{/if}
 		{:else}
 			<Button variant="destructive" onclick={leaveChannel}>Quitter la conférence</Button>
 		{/if}

@@ -88,7 +88,13 @@
 					</Card.Header>
 					<Card.Content>
 						{#if allowedUserIds.includes(authState.user!.uid)}
-							<VideoConference channelName={course.id} userId={authState.user!.uid} />
+							<VideoConference
+								channelName={course.id}
+								userId={authState.user!.uid}
+								courseId={course.id}
+								startedAt={course.startedAt}
+								creatorId={course.userId}
+							/>
 						{:else}
 							<p class="text-muted-foreground">
 								Vous n'êtes pas autorisé à rejoindre cette conférence vidéo.
