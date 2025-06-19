@@ -157,3 +157,15 @@ export async function startCourse(courseId: string): Promise<void> {
 		throw new Error('Failed to start course');
 	}
 }
+
+export async function endCourse(courseId: string): Promise<void> {
+	try {
+		const courseRef = doc(firestore, 'courses', courseId);
+		await updateDoc(courseRef, {
+			startedAt: null
+		});
+	} catch (error) {
+		console.error('Error ending course:', error);
+		throw new Error('Failed to end course');
+	}
+}

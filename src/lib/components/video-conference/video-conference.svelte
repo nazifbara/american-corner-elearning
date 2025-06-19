@@ -4,7 +4,7 @@
 	import { Button } from '$lib/components/ui/button';
 	import { PUBLIC_AGORA_APP_ID } from '$env/static/public';
 	import { Loader2Icon } from '@lucide/svelte';
-	import { startCourse } from '$lib/firebase/courses';
+	import { startCourse, endCourse } from '$lib/firebase/courses';
 
 	type Props = {
 		channelName: string;
@@ -143,6 +143,11 @@
 		client && (await client.leave());
 		joined = false;
 		token = null;
+
+		// End the course if the creator is leaving
+		if (isCreator && startedAt) {
+			await endCourse(courseId);
+		}
 	}
 </script>
 
