@@ -3,19 +3,17 @@
 	import AgoraRTC from 'agora-rtc-sdk-ng';
 	import { Button } from '$lib/components/ui/button';
 	import { PUBLIC_AGORA_APP_ID } from '$env/static/public';
-	import { Loader2Icon } from '@lucide/svelte';
-	import { startCourse, endCourse } from '$lib/firebase/courses';
+	import { Loader2Icon, PhoneOffIcon } from '@lucide/svelte';
+	import { startCourse, endCourse, type Course } from '$lib/firebase/courses';
+	import { authState } from '$lib/state/shared.svelte';
+	import * as Dialog from '$lib/components/ui/dialog';
 
 	type Props = {
-		channelName: string;
-		userId: string;
-		courseId: string;
-		startedAt: Date | null;
-		creatorId: string;
+		course: Course;
 	};
 
-	const { channelName, userId, courseId, startedAt, creatorId }: Props = $props();
-	const isCreator = userId === creatorId;
+	const { course }: Props = $props();
+	const isCreator = authState.user?.uid === course.userId;
 
 	const appId = PUBLIC_AGORA_APP_ID;
 
@@ -77,8 +75,8 @@
 					'Content-Type': 'application/json'
 				},
 				body: JSON.stringify({
-					channelName,
-					uid: userId
+					channelName: course.id,
+					uid: authState.user!.uid
 				})
 			});
 
@@ -110,13 +108,13 @@
 			}
 
 			// Join the channel with token
-			await client.join(appId, channelName, token, userId);
+			await client.join(appId, course.id, token, authState.user!.uid);
 			joined = true;
 
 			// Start the course if creator and not already started
-			if (!startedAt && isCreator) {
-				await startCourse(courseId);
-			} else if (!startedAt && !isCreator) {
+			if (!course.startedAt && isCreator) {
+				await startCourse(course.id);
+			} else if (!course.startedAt && !isCreator) {
 				throw new Error("Le cours n'a pas encore commencé");
 			}
 
@@ -145,36 +143,49 @@
 		token = null;
 
 		// End the course if the creator is leaving
-		if (isCreator && startedAt) {
-			await endCourse(courseId);
+		if (isCreator && course.startedAt) {
+			await endCourse(course.id);
 		}
 	}
 </script>
 
 <div class="flex flex-col gap-4">
-	<div class="flex gap-2">
-		{#if !joined}
-			{#if !startedAt && !isCreator}
-				<p class="text-muted-foreground text-sm">En attente du début du cours par le créateur...</p>
-			{:else}
-				<Button onclick={joinChannel} disabled={joining}>
-					{#if joining}
-						<Loader2Icon size={20} class="animate-spin" />
-					{/if}
-					{isCreator && !startedAt ? 'Commencer la conférence' : 'Rejoindre la conférence'}
-				</Button>
-			{/if}
+	{#if !joined}
+		{#if !course.startedAt && !isCreator}
+			<p class="text-muted-foreground text-sm">En attente du début du cours par le créateur...</p>
 		{:else}
-			<Button variant="destructive" onclick={leaveChannel}>Quitter la conférence</Button>
+			<Button onclick={joinChannel} disabled={joining}>
+				{#if joining}
+					<Loader2Icon size={20} class="animate-spin" />
+				{/if}
+				{isCreator && !course.startedAt ? 'Démarrer la conférence' : 'Rejoindre la conférence'}
+			</Button>
 		{/if}
-	</div>
-
-	<div
-		class="grid grid-cols-[repeat(auto-fit,minmax(350px,0px))] gap-2"
-		bind:this={remoteVideoContainer}
-	>
-		<div bind:this={localVideoContainer} class="aspect-video max-w-sm overflow-hidden rounded-lg">
-			<!-- Local video will be rendered here -->
-		</div>
-	</div>
+	{:else}
+		<Dialog.Root
+			bind:open={joined}
+			onOpenChange={async (open) => {
+				if (!open) {
+					await leaveChannel();
+				}
+				return open;
+			}}
+		>
+			<Dialog.Content class="h-[95dvh] !w-[95dvw] !max-w-none grid-rows-[1fr_auto]">
+				<div
+					class="grid grid-cols-[repeat(auto-fit,minmax(45%,0px))] justify-center gap-2"
+					bind:this={remoteVideoContainer}
+				>
+					<div bind:this={localVideoContainer} class="aspect-video overflow-hidden rounded-lg">
+						<!-- Local video will be rendered here -->
+					</div>
+				</div>
+				<Dialog.Footer>
+					<Button variant="destructive" onclick={leaveChannel}
+						><PhoneOffIcon /> Quitter la conférence</Button
+					>
+				</Dialog.Footer>
+			</Dialog.Content>
+		</Dialog.Root>
+	{/if}
 </div>

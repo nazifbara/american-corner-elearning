@@ -13,6 +13,7 @@
 
 	const courseId = page.params.courseId;
 	let course: Course | null = $state(null);
+	let initialCourse: Course | null = $state(null);
 	let loading = $state(true);
 	let creator = $state<Profile | null>(null);
 	let error = $state<string | null>(null);
@@ -29,6 +30,9 @@
 				course = null;
 				return;
 			}
+			if (!initialCourse) {
+				initialCourse = updatedCourse;
+			}
 
 			course = updatedCourse;
 
@@ -39,6 +43,8 @@
 			loading = false;
 		});
 	});
+
+	$inspect(initialCourse, 'initialCourse');
 
 	onDestroy(() => {
 		// Clean up subscription when component is destroyed
@@ -62,19 +68,19 @@
 				<Button href="/app/courses" variant="outline">Retour aux cours</Button>
 			</Card.Content>
 		</Card.Root>
-	{:else if course}
+	{:else if initialCourse}
 		<div class="space-y-4">
 			<Card.Root>
 				<Card.Header>
 					<Card.Title>
-						{course.title}
+						{initialCourse.title}
 						{#if creator}
 							<span class="text-muted-foreground text-sm font-normal">
 								par {creator.displayName || creator.email}
 							</span>
 						{/if}
 					</Card.Title>
-					<Card.Description>{course.description}</Card.Description>
+					<Card.Description>{initialCourse.description}</Card.Description>
 				</Card.Header>
 				<Card.Content>
 					<!-- Course content will go here -->
@@ -85,21 +91,15 @@
 			</Card.Root>
 
 			<div class="grid gap-4 md:grid-cols-2">
-				<CourseParticipants {course} />
+				<CourseParticipants course={initialCourse} />
 				<Card.Root>
 					<Card.Header>
 						<Card.Title>Conférence vidéo</Card.Title>
 						<Card.Description>Rejoignez la conférence vidéo pour ce cours</Card.Description>
 					</Card.Header>
 					<Card.Content>
-						{#if allowedUserIds.includes(authState.user!.uid)}
-							<VideoConference
-								channelName={course.id}
-								userId={authState.user!.uid}
-								courseId={course.id}
-								startedAt={course.startedAt}
-								creatorId={course.userId}
-							/>
+						{#if allowedUserIds.includes(authState.user!.uid) && course}
+							<VideoConference {course} />
 						{:else}
 							<p class="text-muted-foreground">
 								Vous n'êtes pas autorisé à rejoindre cette conférence vidéo.
