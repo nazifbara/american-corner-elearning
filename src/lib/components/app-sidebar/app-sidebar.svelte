@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { BookIcon, CircleUserIcon, SettingsIcon, LogOutIcon } from '@lucide/svelte';
+	import { BookIcon, CircleUserIcon, SettingsIcon, LogOutIcon, ShieldIcon } from '@lucide/svelte';
 	import { firebaseAuth } from '$lib/firebase';
 	import { page } from '$app/state';
 
@@ -12,6 +12,11 @@
 			title: 'Cours',
 			url: `${baseUrl}/courses`,
 			icon: BookIcon
+		},
+		{
+			title: 'Administration',
+			url: `${baseUrl}/admin`,
+			icon: ShieldIcon
 		},
 		{
 			title: 'Profile',
