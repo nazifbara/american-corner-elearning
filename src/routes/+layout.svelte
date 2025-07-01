@@ -26,7 +26,6 @@
 			if (user) {
 				authState.user = user;
 				console.log('User is logged in', user.email);
-				goto('/app');
 			} else {
 				authState.user = null;
 				console.log('User is logged out');
