@@ -1,10 +1,10 @@
 import { firestore } from '$lib/firebase';
 import { collection, getDocs } from 'firebase/firestore';
 
-type Cohort = {
+export type Cohort = {
 	id: string;
-	num: string;
-	year: string;
+	num: number;
+	year: number;
 };
 
 export async function getCohorts() {
