@@ -1,6 +1,13 @@
 <script lang="ts">
 	import { Button } from '$lib/components/ui/button';
 	import { PlusIcon } from '@lucide/svelte';
+	import { getCohorts } from '$lib/firebase/cohorts';
+	import { onMount } from 'svelte';
+
+	onMount(async () => {
+		const cohorts = await getCohorts();
+		console.log(cohorts);
+	});
 </script>
 
 <div class="mb-4 flex justify-between">
