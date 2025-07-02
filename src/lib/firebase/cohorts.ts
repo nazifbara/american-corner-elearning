@@ -36,7 +36,7 @@ export async function getCohort(param: { number: number; year: number }) {
 		);
 		const querySnapshot = await getDocs(q);
 		if (querySnapshot.empty) {
-			throw new Error(`Cohort with number ${param.number} and year ${param.year} not found`);
+			return null;
 		}
 		const cohortData = querySnapshot.docs[0].data() as Omit<Cohort, 'id'>;
 		return {
