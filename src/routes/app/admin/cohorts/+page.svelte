@@ -9,10 +9,19 @@
 
 	let groupedCohorts: [number, Cohort[]][] = $state([]);
 	let loading = $state(true);
+	let error: string | null = $state(null);
 
 	onMount(async () => {
-		const cohorts = await getCohorts();
-		groupedCohorts = groupCohortsByYear(cohorts);
+		try {
+			const cohorts = await getCohorts();
+			groupedCohorts = groupCohortsByYear(cohorts);
+		} catch (e) {
+			console.error('Error fetching cohorts:', e);
+			error = 'Une erreur est survenue lors de la récupération des cohortes.';
+		} finally {
+			loading = false;
+		}
+
 		loading = false;
 	});
 </script>
@@ -29,6 +38,8 @@
 	<div class="flex min-h-[200px] items-center justify-center">
 		<Loader2Icon class="h-8 w-8 animate-spin" />
 	</div>
+{:else if error}
+	<div class="text-destructive text-center">{error}</div>
 {:else if groupedCohorts.length === 0}
 	<div class="text-muted-foreground text-center">Aucune cohorte trouvée.</div>
 {:else}
