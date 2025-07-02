@@ -1,17 +1,17 @@
 <script lang="ts">
 	import { Button } from '$lib/components/ui/button';
 	import * as Accordion from '$lib/components/ui/accordion';
-	import { PlusIcon, Loader2Icon } from '@lucide/svelte';
+	import { PlusIcon, Loader2Icon, RotateCcwIcon } from '@lucide/svelte';
 	import { getCohorts } from '$lib/firebase/cohorts';
 	import { onMount } from 'svelte';
 	import { groupCohortsByYear } from '$lib/utils';
 	import type { Cohort } from '$lib/firebase/cohorts';
 
 	let groupedCohorts: [number, Cohort[]][] = $state([]);
-	let loading = $state(true);
+	let loading = $state(false);
 	let error: string | null = $state(null);
 
-	onMount(async () => {
+	onMount(() => {
 		fetchCohorts();
 	});
 
@@ -42,11 +42,17 @@
 		<Loader2Icon class="h-8 w-8 animate-spin" />
 	</div>
 {:else if error}
-	<div class="text-destructive text-center">{error}</div>
+	<div class="flex min-h-[200px] flex-col items-center justify-center">
+		<div class="text-destructive text-center">{error}</div>
+		<Button variant="outline" onclick={fetchCohorts} class="mt-2">
+			<RotateCcwIcon class="mr-2" />
+			Réessayer
+		</Button>
+	</div>
 {:else if groupedCohorts.length === 0}
 	<div class="text-muted-foreground text-center">Aucune cohorte trouvée.</div>
 {:else}
-	<Accordion.Root type="single" class="mx-auto w-full max-w-sm">
+	<Accordion.Root type="single" class="mx-auto w-full max-w-lg">
 		{#each groupedCohorts as [year, cohorts]}
 			<Accordion.Item value={year.toString()} class="mb-2">
 				<Accordion.Trigger class="w-full text-left">
