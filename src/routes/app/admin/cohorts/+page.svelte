@@ -12,7 +12,12 @@
 	let error: string | null = $state(null);
 
 	onMount(async () => {
+		fetchCohorts();
+	});
+
+	async function fetchCohorts() {
 		try {
+			loading = true;
 			const cohorts = await getCohorts();
 			groupedCohorts = groupCohortsByYear(cohorts);
 		} catch (e) {
@@ -21,9 +26,7 @@
 		} finally {
 			loading = false;
 		}
-
-		loading = false;
-	});
+	}
 </script>
 
 <div class="mb-4 flex justify-between">
