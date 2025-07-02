@@ -6,6 +6,7 @@
 	import { onMount } from 'svelte';
 	import { groupCohortsByYear } from '$lib/utils';
 	import type { Cohort } from '$lib/firebase/cohorts';
+	import { page } from '$app/state';
 
 	let groupedCohorts: [number, Cohort[]][] = $state([]);
 	let loading = $state(false);
@@ -61,7 +62,11 @@
 				<Accordion.Content>
 					<ul class="list-disc pl-6">
 						{#each cohorts as cohort}
-							<li>Cohorte {cohort.number} - {year}</li>
+							<li>
+								<Button variant="link" href="{page.url.pathname}/{cohort.year}x{cohort.number}">
+									Cohorte {cohort.number} - {year}
+								</Button>
+							</li>
 						{/each}
 					</ul>
 				</Accordion.Content>
