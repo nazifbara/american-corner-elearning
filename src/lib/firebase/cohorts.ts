@@ -3,7 +3,7 @@ import { collection, getDocs } from 'firebase/firestore';
 
 export type Cohort = {
 	id: string;
-	num: number;
+	number: number;
 	year: number;
 };
 
