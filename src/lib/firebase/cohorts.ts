@@ -20,7 +20,7 @@ export async function getCohorts() {
 				...(doc.data() as Omit<Cohort, 'id'>)
 			});
 		});
-		return cohorts;
+		return cohorts.sort((a, b) => b.year - a.year || b.number - a.number);
 	} catch (error) {
 		console.error('Error fetching cohorts:', error);
 		throw new Error('Failed to fetch cohorts');
