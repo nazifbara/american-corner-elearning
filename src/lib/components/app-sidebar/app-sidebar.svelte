@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { BookIcon, CircleUserIcon, SettingsIcon, LogOutIcon, ShieldIcon } from '@lucide/svelte';
+	import { BookIcon, CircleUserIcon, SettingsIcon, LogOutIcon, BoxesIcon } from '@lucide/svelte';
 	import { firebaseAuth } from '$lib/firebase';
 	import { page } from '$app/state';
 
@@ -7,16 +7,11 @@
 
 	const baseUrl = '/app';
 
-	const items = [
+	const appitems = [
 		{
 			title: 'Cours',
 			url: `${baseUrl}/courses`,
 			icon: BookIcon
-		},
-		{
-			title: 'Administration',
-			url: `${baseUrl}/admin`,
-			icon: ShieldIcon
 		},
 		{
 			title: 'Profile',
@@ -27,6 +22,14 @@
 			title: 'Configuration',
 			url: '#',
 			icon: SettingsIcon
+		}
+	];
+
+	const adminItems = [
+		{
+			title: 'Cohortes',
+			url: `${baseUrl}/admin/cohorts`,
+			icon: BoxesIcon
 		}
 	];
 
@@ -41,7 +44,27 @@
 			<Sidebar.GroupLabel>Application</Sidebar.GroupLabel>
 			<Sidebar.GroupContent>
 				<Sidebar.Menu>
-					{#each items as item (item.title)}
+					{#each appitems as item (item.title)}
+						<Sidebar.MenuItem>
+							<Sidebar.MenuButton isActive={page.url.pathname === item.url}>
+								{#snippet child({ props })}
+									<a href={item.url} {...props}>
+										<item.icon />
+										<span>{item.title}</span>
+									</a>
+								{/snippet}
+							</Sidebar.MenuButton>
+						</Sidebar.MenuItem>
+					{/each}
+				</Sidebar.Menu>
+			</Sidebar.GroupContent>
+		</Sidebar.Group>
+
+		<Sidebar.Group>
+			<Sidebar.GroupLabel>Administration</Sidebar.GroupLabel>
+			<Sidebar.GroupContent>
+				<Sidebar.Menu>
+					{#each adminItems as item (item.title)}
 						<Sidebar.MenuItem>
 							<Sidebar.MenuButton isActive={page.url.pathname === item.url}>
 								{#snippet child({ props })}
