@@ -1,11 +1,13 @@
 <script lang="ts">
+	import { Button } from '$lib/components/ui/button';
 	import { getProfiles } from '$lib/firebase/profiles';
 	import { authState } from '$lib/state/shared.svelte';
 	import type { Profile } from '$lib/firebase/profiles';
-	import { Loader2Icon } from '@lucide/svelte';
+	import { Loader2Icon, RotateCcwIcon } from '@lucide/svelte';
 
-	let profiles = $state<Profile[]>([]);
+	let profiles: Profile[] = $state([]);
 	let loading = $state(true);
+	let error: string | null = $state(null);
 
 	$effect(() => {
 		if (authState.user) {
@@ -14,10 +16,12 @@
 	});
 	async function fetchProfiles() {
 		try {
+			loading = true;
 			profiles = await getProfiles([authState.user!.uid]);
 			console.log('Fetched profiles:', profiles);
-		} catch (error) {
-			console.error('Error fetching profiles:', error);
+		} catch (err) {
+			console.error('Error fetching profiles:', err);
+			error = 'Une erreur est survenue lors de la récupération des utilisateurs.';
 		} finally {
 			loading = false;
 		}
@@ -29,6 +33,14 @@
 {#if loading}
 	<div class="flex min-h-[200px] items-center justify-center">
 		<Loader2Icon class="h-8 w-8 animate-spin" />
+	</div>
+{:else if error}
+	<div class="flex min-h-[200px] flex-col items-center justify-center">
+		<div class="text-destructive text-center">{error}</div>
+		<Button variant="outline" class="btn btn-outline mt-2" onclick={fetchProfiles}>
+			<RotateCcwIcon class="mr-2" />
+			Réessayer
+		</Button>
 	</div>
 {:else if profiles.length === 0}
 	<div class="text-muted-foreground text-center">Aucun utilisateur trouvé.</div>
