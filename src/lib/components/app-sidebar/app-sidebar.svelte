@@ -1,5 +1,12 @@
 <script lang="ts">
-	import { BookIcon, CircleUserIcon, SettingsIcon, LogOutIcon, BoxesIcon } from '@lucide/svelte';
+	import {
+		BookIcon,
+		CircleUserIcon,
+		SettingsIcon,
+		LogOutIcon,
+		BoxesIcon,
+		UsersIcon
+	} from '@lucide/svelte';
 	import { firebaseAuth } from '$lib/firebase';
 	import { page } from '$app/state';
 
@@ -30,6 +37,11 @@
 			title: 'Cohortes',
 			url: `${baseUrl}/admin/cohorts`,
 			icon: BoxesIcon
+		},
+		{
+			title: 'Utilisateurs',
+			url: `${baseUrl}/admin/users`,
+			icon: UsersIcon
 		}
 	];
 
