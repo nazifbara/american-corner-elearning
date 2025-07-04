@@ -16,14 +16,16 @@ export interface Profile {
 	displayName: string | null;
 	photoURL: string | null;
 	courses: Record<string, true>;
+	roles: string[];
 	createdAt: Date;
 	updatedAt: Date;
 }
 
-export async function createProfile(profile: Profile): Promise<void> {
+export async function createProfile(profile: Omit<Profile, 'roles'>): Promise<void> {
 	const profileRef = doc(firestore, 'profiles', profile.uid) as DocumentReference<Profile>;
 	await setDoc(profileRef, {
 		...profile,
+		roles: ['user'],
 		createdAt: new Date(),
 		updatedAt: new Date()
 	});
