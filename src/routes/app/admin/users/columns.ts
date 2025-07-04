@@ -9,5 +9,6 @@ export const columns: ColumnDef<Profile>[] = [
 	{
 		accessorKey: 'email',
 		header: 'Email'
-	}
+	},
+	{ accessorKey: 'roles', header: 'Rôles', cell: ({ row }) => row.original.roles.join(', ') }
 ];
