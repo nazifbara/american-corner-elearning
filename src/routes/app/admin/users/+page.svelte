@@ -1,5 +1,7 @@
 <script lang="ts">
 	import { Button } from '$lib/components/ui/button';
+	import { DataTable } from '$lib/components/ui/data-table';
+	import { columns } from './columns';
 	import { getProfiles } from '$lib/firebase/profiles';
 	import { authState } from '$lib/state/shared.svelte';
 	import type { Profile } from '$lib/firebase/profiles';
@@ -28,7 +30,7 @@
 	}
 </script>
 
-<h1 class="text-2xl font-semibold">Utilisateurs</h1>
+<h1 class="mb-8 text-2xl font-semibold">Utilisateurs</h1>
 
 {#if loading}
 	<div class="flex min-h-[200px] items-center justify-center">
@@ -45,9 +47,7 @@
 {:else if profiles.length === 0}
 	<div class="text-muted-foreground text-center">Aucun utilisateur trouvé.</div>
 {:else}
-	<ul>
-		{#each profiles as profile}
-			<li>{profile.email}</li>
-		{/each}
-	</ul>
+	<div class="mx-auto w-full max-w-2xl">
+		<DataTable data={profiles} {columns} />
+	</div>
 {/if}
