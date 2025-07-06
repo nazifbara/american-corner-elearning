@@ -21,11 +21,22 @@ export interface Profile {
 	updatedAt: Date;
 }
 
+export function updateRoles(uid: string, roles: string[]): Promise<void> {
+	const profileRef = doc(firestore, 'profiles', uid) as DocumentReference<Profile>;
+	return setDoc(
+		profileRef,
+		{
+			roles
+		},
+		{ merge: true }
+	);
+}
+
 export async function createProfile(profile: Omit<Profile, 'roles'>): Promise<void> {
 	const profileRef = doc(firestore, 'profiles', profile.uid) as DocumentReference<Profile>;
 	await setDoc(profileRef, {
 		...profile,
-		roles: ['user'],
+		roles: [],
 		createdAt: new Date(),
 		updatedAt: new Date()
 	});
