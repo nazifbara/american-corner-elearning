@@ -5,8 +5,6 @@
 	import { getProfiles } from '$lib/firebase/profiles';
 	import { authState } from '$lib/state/shared.svelte';
 	import type { Profile } from '$lib/firebase/profiles';
-	import { Input } from '$lib/components/ui/input';
-	import { SearchIcon } from '@lucide/svelte';
 	import { Loader2Icon, RotateCcwIcon } from '@lucide/svelte';
 
 	let profiles: Profile[] = $state([]);

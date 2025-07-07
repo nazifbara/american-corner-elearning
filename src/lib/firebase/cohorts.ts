@@ -1,5 +1,5 @@
 import { firestore } from '$lib/firebase';
-import { collection, getDocs, query, where } from 'firebase/firestore';
+import { collection, getDocs, query, where, addDoc } from 'firebase/firestore';
 
 export type Cohort = {
 	id: string;
@@ -8,6 +8,27 @@ export type Cohort = {
 };
 
 const cohortsRef = collection(firestore, 'cohorts');
+
+export async function countCohortsByYear(year: number): Promise<number> {
+	try {
+		const q = query(cohortsRef, where('year', '==', year));
+		const querySnapshot = await getDocs(q);
+		return querySnapshot.size;
+	} catch (error) {
+		console.error('Error counting current year cohorts:', error);
+		throw new Error('Failed to count current year cohorts');
+	}
+}
+
+export async function addCohort(cohort: Omit<Cohort, 'id'>): Promise<Cohort> {
+	try {
+		const docRef = await addDoc(cohortsRef, cohort);
+		return { id: docRef.id, ...cohort };
+	} catch (error) {
+		console.error('Error adding cohort:', error);
+		throw new Error('Failed to add cohort');
+	}
+}
 
 export async function getCohorts() {
 	try {

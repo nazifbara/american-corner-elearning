@@ -16,7 +16,7 @@
 		searchInput?: Snippet<[ReturnType<typeof createSvelteTable<TData>>]>;
 	};
 
-	let { data, columns, searchInput }: DataTableProps<TData, TValue> = $props();
+	let { data = $bindable(), columns, searchInput }: DataTableProps<TData, TValue> = $props();
 
 	let columnFilters = $state<ColumnFiltersState>([]);
 
