@@ -35,7 +35,9 @@
 </script>
 
 <Select.Root type="single" value={roles[0]} onValueChange={(value) => handleRole(value)}>
-	<Select.Trigger>{roles[0] || 'Selectionnez rôle'}</Select.Trigger>
+	<Select.Trigger
+		>{items.find((i) => i.value === roles[0])?.label || 'Selectionnez rôle'}</Select.Trigger
+	>
 	<Select.Content>
 		{#each items as role}
 			<Select.Item value={role.value} label={role.label}>
