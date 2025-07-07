@@ -1,10 +1,12 @@
 <script lang="ts">
 	import { Button } from '$lib/components/ui/button';
-	import { DataTable } from '$lib/components/ui/data-table';
+	import { DataTable, SearchTableInput } from '$lib/components/ui/data-table';
 	import { columns } from './columns';
 	import { getProfiles } from '$lib/firebase/profiles';
 	import { authState } from '$lib/state/shared.svelte';
 	import type { Profile } from '$lib/firebase/profiles';
+	import { Input } from '$lib/components/ui/input';
+	import { SearchIcon } from '@lucide/svelte';
 	import { Loader2Icon, RotateCcwIcon } from '@lucide/svelte';
 
 	let profiles: Profile[] = $state([]);
@@ -48,6 +50,14 @@
 	<div class="text-muted-foreground text-center">Aucun utilisateur trouvé.</div>
 {:else}
 	<div class="mx-auto w-full max-w-2xl">
-		<DataTable data={profiles} {columns} />
+		<DataTable data={profiles} {columns}>
+			{#snippet searchInput(table)}
+				<SearchTableInput
+					placeholder="Rechercher par email..."
+					getFilterValue={() => (table.getColumn('email')?.getFilterValue() as string) ?? ''}
+					setFilterValue={(value) => table.getColumn('email')?.setFilterValue(value)}
+				/>
+			{/snippet}
+		</DataTable>
 	</div>
 {/if}

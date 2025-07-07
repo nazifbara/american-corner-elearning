@@ -7,15 +7,16 @@
 	} from '@tanstack/table-core';
 	import { createSvelteTable, FlexRender } from '$lib/components/ui/data-table';
 	import * as Table from '$lib/components/ui/table';
-	import { Input } from '$lib/components/ui/input';
-	import { SearchIcon } from '@lucide/svelte';
+
+	import type { Snippet } from 'svelte';
 
 	type DataTableProps<TData, TValue> = {
 		columns: ColumnDef<TData, TValue>[];
 		data: TData[];
+		searchInput?: Snippet<[ReturnType<typeof createSvelteTable<TData>>]>;
 	};
 
-	let { data, columns }: DataTableProps<TData, TValue> = $props();
+	let { data, columns, searchInput }: DataTableProps<TData, TValue> = $props();
 
 	let columnFilters = $state<ColumnFiltersState>([]);
 
@@ -42,22 +43,7 @@
 </script>
 
 <div>
-	<div class="relative mb-4 flex max-w-sm items-center">
-		<span class="pointer-events-none absolute top-1/2 left-2 -translate-y-1/2">
-			<SearchIcon class="text-muted-foreground h-4 w-4" />
-		</span>
-		<Input
-			placeholder="Filter emails..."
-			value={(table.getColumn('email')?.getFilterValue() as string) ?? ''}
-			onchange={(e) => {
-				table.getColumn('email')?.setFilterValue(e.currentTarget.value);
-			}}
-			oninput={(e) => {
-				table.getColumn('email')?.setFilterValue(e.currentTarget.value);
-			}}
-			class="w-full pl-8"
-		/>
-	</div>
+	{@render searchInput?.(table)}
 	<div class="rounded-md border">
 		<Table.Root>
 			<Table.Header>
