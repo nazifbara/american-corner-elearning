@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { toast } from 'svelte-sonner';
 	import * as Select from '$lib/components/ui/select';
 	import { updateRoles } from '$lib/firebase/profiles';
 
@@ -22,8 +23,14 @@
 	let { roles = $bindable(), uid }: Props = $props();
 
 	async function handleRole(role: string) {
+		const previousRoles = [...roles];
 		roles = [role];
-		await updateRoles(uid, [role]);
+		try {
+			await updateRoles(uid, [role]);
+		} catch (e) {
+			toast.error('Erreur lors de la mise à jour du rôle');
+			roles = previousRoles;
+		}
 	}
 </script>
 
