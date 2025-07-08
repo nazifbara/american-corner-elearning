@@ -16,6 +16,7 @@ export interface Profile {
 	displayName: string | null;
 	photoURL: string | null;
 	courses: Record<string, true>;
+	cohorts: Record<string, true>;
 	roles: string[];
 	createdAt: Date;
 	updatedAt: Date;

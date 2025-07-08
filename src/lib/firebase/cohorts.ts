@@ -5,6 +5,7 @@ export type Cohort = {
 	id: string;
 	number: number;
 	year: number;
+	participants: Record<string, true>;
 };
 
 const cohortsRef = collection(firestore, 'cohorts');
@@ -20,10 +21,10 @@ export async function countCohortsByYear(year: number): Promise<number> {
 	}
 }
 
-export async function addCohort(cohort: Omit<Cohort, 'id'>): Promise<Cohort> {
+export async function addCohort(cohort: Omit<Cohort, 'id' | 'participants'>): Promise<Cohort> {
 	try {
 		const docRef = await addDoc(cohortsRef, cohort);
-		return { id: docRef.id, ...cohort };
+		return { id: docRef.id, participants: {}, ...cohort };
 	} catch (error) {
 		console.error('Error adding cohort:', error);
 		throw new Error('Failed to add cohort');
