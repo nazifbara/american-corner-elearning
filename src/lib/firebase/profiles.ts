@@ -64,3 +64,18 @@ export async function getProfiles(except: string[] = []): Promise<Profile[]> {
 	});
 	return profiles;
 }
+
+export async function getStudents(): Promise<Profile[]> {
+	const profiles: Profile[] = [];
+
+	const profilesRef = collection(firestore, 'profiles');
+	const q = query(profilesRef, where('roles', 'array-contains', 'student'));
+	const querySnapshot = await getDocs(q);
+	querySnapshot.forEach((doc) => {
+		profiles.push({
+			uid: doc.id,
+			...doc.data()
+		} as Profile);
+	});
+	return profiles;
+}

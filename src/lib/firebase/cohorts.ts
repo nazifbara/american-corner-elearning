@@ -1,14 +1,55 @@
 import { firestore } from '$lib/firebase';
-import { collection, getDocs, query, where, addDoc } from 'firebase/firestore';
+import {
+	collection,
+	getDocs,
+	query,
+	where,
+	addDoc,
+	updateDoc,
+	doc,
+	deleteField
+} from 'firebase/firestore';
 
 export type Cohort = {
 	id: string;
 	number: number;
 	year: number;
-	participants: Record<string, true>;
+	members: Record<string, true>;
 };
 
 const cohortsRef = collection(firestore, 'cohorts');
+
+export async function addParticipant(cohortId: string, userId: string): Promise<void> {
+	try {
+		const cohortRef = doc(firestore, 'cohorts', cohortId);
+		const profileRef = doc(firestore, 'profiles', userId);
+		await Promise.all([
+			updateDoc(cohortRef, {
+				[`members.${userId}`]: true
+			}),
+			updateDoc(profileRef, {
+				[`cohorts.${cohortId}`]: true
+			})
+		]);
+	} catch (error) {
+		console.error('Error adding participant:', error);
+		throw new Error('Failed to add participant');
+	}
+}
+
+export async function removeParticipant(cohortId: string, userId: string): Promise<void> {
+	try {
+		const cohortRef = doc(firestore, 'cohorts', cohortId);
+		const profileCourseRef = doc(firestore, 'profiles', userId);
+		await Promise.all([
+			updateDoc(cohortRef, { [`members.${userId}`]: deleteField() }),
+			updateDoc(profileCourseRef, { [`cohorts.${cohortId}`]: deleteField() })
+		]);
+	} catch (error) {
+		console.error('Error removing participant:', error);
+		throw new Error('Failed to remove participant');
+	}
+}
 
 export async function countCohortsByYear(year: number): Promise<number> {
 	try {
@@ -21,10 +62,11 @@ export async function countCohortsByYear(year: number): Promise<number> {
 	}
 }
 
-export async function addCohort(cohort: Omit<Cohort, 'id' | 'participants'>): Promise<Cohort> {
+export async function addCohort(cohort: Omit<Cohort, 'id' | 'members'>): Promise<Cohort> {
 	try {
-		const docRef = await addDoc(cohortsRef, cohort);
-		return { id: docRef.id, participants: {}, ...cohort };
+		const data = { ...cohort, members: {} };
+		const docRef = await addDoc(cohortsRef, data);
+		return { id: docRef.id, ...data };
 	} catch (error) {
 		console.error('Error adding cohort:', error);
 		throw new Error('Failed to add cohort');

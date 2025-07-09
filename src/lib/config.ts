@@ -1,1 +1,1 @@
-export const MAX_NUM_PARTICIPANTS = 15;
+export const MAX_NUM_MEMBERS = 15;

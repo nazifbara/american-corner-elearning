@@ -8,7 +8,6 @@ import {
 	updateDoc,
 	where,
 	query,
-	deleteField,
 	onSnapshot
 } from 'firebase/firestore';
 
@@ -78,38 +77,6 @@ export async function getCourse(courseId: string): Promise<Course | null> {
 	} catch (error) {
 		console.error('Error fetching course:', error);
 		throw new Error('Failed to fetch course');
-	}
-}
-
-export async function addParticipant(courseId: string, userId: string): Promise<void> {
-	try {
-		const courseRef = doc(firestore, 'courses', courseId);
-		const profileRef = doc(firestore, 'profiles', userId);
-		await Promise.all([
-			updateDoc(courseRef, {
-				[`participants.${userId}`]: true
-			}),
-			updateDoc(profileRef, {
-				[`courses.${courseId}`]: true
-			})
-		]);
-	} catch (error) {
-		console.error('Error adding participant:', error);
-		throw new Error('Failed to add participant');
-	}
-}
-
-export async function removeParticipant(courseId: string, userId: string): Promise<void> {
-	try {
-		const courseParticipantRef = doc(firestore, 'courses', courseId);
-		const profileCourseRef = doc(firestore, 'profiles', userId);
-		await Promise.all([
-			updateDoc(courseParticipantRef, { [`participants.${userId}`]: deleteField() }),
-			updateDoc(profileCourseRef, { [`courses.${courseId}`]: deleteField() })
-		]);
-	} catch (error) {
-		console.error('Error removing participant:', error);
-		throw new Error('Failed to remove participant');
 	}
 }
 
