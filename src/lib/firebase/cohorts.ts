@@ -14,6 +14,7 @@ export type Cohort = {
 	id: string;
 	number: number;
 	year: number;
+	coach: string | null;
 	members: Record<string, true>;
 };
 
@@ -62,9 +63,9 @@ export async function countCohortsByYear(year: number): Promise<number> {
 	}
 }
 
-export async function addCohort(cohort: Omit<Cohort, 'id' | 'members'>): Promise<Cohort> {
+export async function addCohort(cohort: Omit<Cohort, 'id' | 'members' | 'coach'>): Promise<Cohort> {
 	try {
-		const data = { ...cohort, members: {} };
+		const data = { ...cohort, members: {}, coach: null };
 		const docRef = await addDoc(cohortsRef, data);
 		return { id: docRef.id, ...data };
 	} catch (error) {

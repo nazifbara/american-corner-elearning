@@ -13,6 +13,11 @@ export const columns: ColumnDef<Cohort>[] = [
 		header: 'Année'
 	},
 	{
+		accessorKey: 'coach',
+		header: 'Coach',
+		cell: ({ row }) => row.original.coach || 'Aucun'
+	},
+	{
 		accessorKey: 'members',
 		header: 'Membres',
 		cell: ({ row }) =>
