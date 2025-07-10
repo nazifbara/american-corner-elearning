@@ -40,6 +40,8 @@
 				displayName: displayName || null,
 				photoURL: userCredential.user.photoURL,
 				courses: {},
+				assignedCohorts: {},
+				cohorts: {},
 				createdAt: new Date(),
 				updatedAt: new Date()
 			});

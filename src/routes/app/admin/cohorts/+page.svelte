@@ -8,6 +8,7 @@
 	import type { Cohort } from '$lib/firebase/cohorts';
 	import { columns } from './columns';
 	import { toast } from 'svelte-sonner';
+	import { coachList } from '$lib/state/shared.svelte';
 
 	let cohorts: Cohort[] = $state([]);
 	let loading = $state(false);
@@ -16,6 +17,7 @@
 
 	onMount(() => {
 		fetchCohorts();
+		coachList.fetch();
 	});
 
 	async function handleNewCohort() {
@@ -61,7 +63,7 @@
 	</Button>
 </div>
 
-{#if loading}
+{#if loading || coachList.loading}
 	<div class="flex min-h-[200px] items-center justify-center">
 		<Loader2Icon class="h-8 w-8 animate-spin" />
 	</div>

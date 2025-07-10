@@ -13,7 +13,6 @@
 		members: Record<string, true>;
 	};
 	let { cohortId, members }: Props = $props();
-	$inspect(members);
 	let numMembers = $derived(Object.keys(members).length);
 	let membersProfiles = $state<Record<string, Profile | null>>({});
 	let loading = $state(false);

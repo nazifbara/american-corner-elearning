@@ -17,6 +17,7 @@ export interface Profile {
 	photoURL: string | null;
 	courses: Record<string, true>;
 	cohorts: Record<string, true>;
+	assignedCohorts: Record<string, true>;
 	roles: string[];
 	createdAt: Date;
 	updatedAt: Date;
@@ -70,6 +71,21 @@ export async function getStudents(): Promise<Profile[]> {
 
 	const profilesRef = collection(firestore, 'profiles');
 	const q = query(profilesRef, where('roles', 'array-contains', 'student'));
+	const querySnapshot = await getDocs(q);
+	querySnapshot.forEach((doc) => {
+		profiles.push({
+			uid: doc.id,
+			...doc.data()
+		} as Profile);
+	});
+	return profiles;
+}
+
+export async function getCoaches(): Promise<Profile[]> {
+	const profiles: Profile[] = [];
+
+	const profilesRef = collection(firestore, 'profiles');
+	const q = query(profilesRef, where('roles', 'array-contains', 'coach'));
 	const querySnapshot = await getDocs(q);
 	querySnapshot.forEach((doc) => {
 		profiles.push({

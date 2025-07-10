@@ -20,6 +20,24 @@ export type Cohort = {
 
 const cohortsRef = collection(firestore, 'cohorts');
 
+export async function updateCohortCoach(cohortId: string, coachId: string) {
+	try {
+		const cohortRef = doc(firestore, 'cohorts', cohortId);
+		const profileRef = doc(firestore, 'profiles', coachId);
+		await Promise.all([
+			updateDoc(cohortRef, {
+				coach: coachId
+			}),
+			updateDoc(profileRef, {
+				[`assignedCohorts.${cohortId}`]: true
+			})
+		]);
+	} catch (error) {
+		console.error('Error updating coach:', error);
+		throw new Error('Failed to update coach');
+	}
+}
+
 export async function addParticipant(cohortId: string, userId: string): Promise<void> {
 	try {
 		const cohortRef = doc(firestore, 'cohorts', cohortId);
