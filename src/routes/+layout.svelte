@@ -10,10 +10,12 @@
 	import { ModeWatcher } from 'mode-watcher';
 	import { getProfiles } from '$lib/firebase/profiles';
 	import { profilesState } from '$lib/state/shared.svelte';
+	import { addSchedulesToAllCohorts } from '$lib/firebase/cohorts';
 
 	let initialized = $state(false);
 
 	$effect(() => {
+		addSchedulesToAllCohorts();
 		if (browser && !initialized) {
 			initialized = true;
 		}

@@ -16,6 +16,12 @@ export type Cohort = {
 	year: number;
 	coach: string | null;
 	members: Record<string, true>;
+	schedules: Record<string, string | null>;
+};
+
+export type CreateCohort = {
+	number: number;
+	year: number;
 };
 
 const cohortsRef = collection(firestore, 'cohorts');
@@ -81,9 +87,14 @@ export async function countCohortsByYear(year: number): Promise<number> {
 	}
 }
 
-export async function addCohort(cohort: Omit<Cohort, 'id' | 'members' | 'coach'>): Promise<Cohort> {
+export async function addCohort(cohort: CreateCohort): Promise<Cohort> {
 	try {
-		const data = { ...cohort, members: {}, coach: null };
+		const data = {
+			...cohort,
+			members: {},
+			coach: null,
+			schedules: { mon: null, tue: null, wed: null, thu: null, fri: null, sat: null, sun: null }
+		};
 		const docRef = await addDoc(cohortsRef, data);
 		return { id: docRef.id, ...data };
 	} catch (error) {
