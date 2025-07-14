@@ -1,12 +1,12 @@
 export class ListHandler<T> {
 	#data = $state<T[]>([]);
-	#loading = $state(true);
+	#loading = $state(false);
 	#adding = $state(false);
 	#error = $state();
 	#fetchFn: () => Promise<T[]>;
-	#addFn: () => Promise<T>;
+	#addFn;
 
-	constructor({ fetchFn, addFn }: { fetchFn: () => Promise<T[]>; addFn: () => Promise<T> }) {
+	constructor({ fetchFn, addFn }: { fetchFn: () => Promise<T[]>; addFn?: () => Promise<T> }) {
 		this.#fetchFn = fetchFn;
 		this.#addFn = addFn;
 	}
@@ -40,7 +40,7 @@ export class ListHandler<T> {
 	}
 
 	async add({ onSuccess, onError }: { onSuccess?: () => void; onError?: () => void } = {}) {
-		if (this.#adding) return;
+		if (this.#adding || !this.#addFn) return;
 
 		try {
 			this.#adding = true;

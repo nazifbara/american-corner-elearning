@@ -8,7 +8,6 @@
 	import { cn } from '$lib/utils.js';
 	import type { Profile } from '$lib/firebase/profiles';
 	import { coachList } from '$lib/state/shared.svelte';
-	import { on } from 'svelte/events';
 
 	type Props = {
 		selectedCoach?: Profile | null;
@@ -17,7 +16,7 @@
 
 	let { selectedCoach = $bindable(), onChange }: Props = $props();
 	let items = $derived(
-		coachList.coaches.map((c) => ({ value: c.uid, label: c.displayName })) || []
+		coachList.initialized ? coachList.data.map((c) => ({ value: c.uid, label: c.displayName })) : []
 	);
 
 	let open = $state(false);
@@ -62,7 +61,7 @@
 							value={item.value}
 							onSelect={() => {
 								value = item.value;
-								onChange?.(coachList.coaches.find((c) => c.uid === item.value)!);
+								onChange?.(coachList.data.find((c) => c.uid === item.value)!);
 								closeAndFocusTrigger();
 							}}
 						>
