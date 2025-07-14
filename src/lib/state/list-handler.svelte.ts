@@ -1,20 +1,12 @@
-import type { Cohort } from '$lib/firebase/cohorts';
-
-export class CohortList {
-	#data = $state<Cohort[]>([]);
-	#loading = $state(false);
+export class ListHandler<T> {
+	#data = $state<T[]>([]);
+	#loading = $state(true);
 	#adding = $state(false);
 	#error = $state();
-	#fetchFn;
-	#addFn;
+	#fetchFn: () => Promise<T[]>;
+	#addFn: () => Promise<T>;
 
-	constructor({
-		fetchFn,
-		addFn
-	}: {
-		fetchFn: () => Promise<Cohort[]>;
-		addFn: () => Promise<Cohort>;
-	}) {
+	constructor({ fetchFn, addFn }: { fetchFn: () => Promise<T[]>; addFn: () => Promise<T> }) {
 		this.#fetchFn = fetchFn;
 		this.#addFn = addFn;
 	}
@@ -40,8 +32,8 @@ export class CohortList {
 			this.#loading = true;
 			this.#data = await this.#fetchFn();
 		} catch (e) {
-			console.error('Error fetching cohorts:', e);
-			this.#error = 'Une erreur est survenue lors de la récupération des cohortes.';
+			console.error('Error fetching items:', e);
+			this.#error = 'Une erreur est survenue lors de la récupération des éléments.';
 		} finally {
 			this.#loading = false;
 		}
@@ -52,11 +44,11 @@ export class CohortList {
 
 		try {
 			this.#adding = true;
-			const newCohort = await this.#addFn();
-			this.#data.splice(0, 0, newCohort);
+			const newItem = await this.#addFn();
+			this.#data.splice(0, 0, newItem);
 			onSuccess?.();
 		} catch (e) {
-			console.error('Error creating cohort:', e);
+			console.error('Error creating item:', e);
 			onError?.();
 		} finally {
 			this.#adding = false;

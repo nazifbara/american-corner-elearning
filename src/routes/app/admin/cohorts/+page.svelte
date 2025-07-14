@@ -4,13 +4,13 @@
 	import { PlusIcon, Loader2Icon, RotateCcwIcon } from '@lucide/svelte';
 	import { toast } from 'svelte-sonner';
 
-	import { getCohorts, countCohortsByYear, addCohort } from '$lib/firebase/cohorts';
+	import { getCohorts, countCohortsByYear, addCohort, type Cohort } from '$lib/firebase/cohorts';
 	import { onMount } from 'svelte';
 	import { columns } from './columns';
 	import { coachList } from '$lib/state/shared.svelte';
-	import { CohortList } from './cohorts.svelte';
+	import { ListHandler } from '$lib/state/list-handler.svelte';
 
-	const cohortList = new CohortList({
+	const cohortList = new ListHandler<Cohort>({
 		fetchFn: getCohorts,
 		addFn: async () => {
 			const year = new Date().getFullYear();
@@ -20,6 +20,7 @@
 			return newCohort;
 		}
 	});
+
 	onMount(() => {
 		cohortList.fetch();
 		coachList.fetch();
