@@ -3,6 +3,7 @@ import type { Cohort } from '$lib/firebase/cohorts';
 import { renderComponent } from '$lib/components/ui/data-table';
 import MembersCell from './members-cell.svelte';
 import CoachCell from './coach-cell.svelte';
+import SchedulesCell from './schedules-cell.svelte';
 
 export const columns: ColumnDef<Cohort>[] = [
 	{
@@ -30,5 +31,10 @@ export const columns: ColumnDef<Cohort>[] = [
 				members: row.original.members,
 				cohortId: row.original.id
 			})
+	},
+	{
+		accessorKey: 'schedules',
+		header: 'Programmation',
+		cell: () => renderComponent(SchedulesCell)
 	}
 ];
