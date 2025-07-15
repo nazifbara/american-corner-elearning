@@ -2,12 +2,16 @@
 	import { Button } from '$lib/components/ui/button';
 	import { Input } from '$lib/components/ui/input';
 	import * as Dialog from '$lib/components/ui/dialog';
+	import { saveCohortSchedules } from '$lib/firebase/cohorts';
+	import { toast } from 'svelte-sonner';
+	import { Loader2 } from '@lucide/svelte';
 
 	type Props = {
+		cohortId: string;
 		schedules: Record<number, string | null>;
 	};
 
-	let { schedules }: Props = $props();
+	let { cohortId, schedules }: Props = $props();
 
 	const days = [
 		{ num: 1, name: 'Lundi' },
@@ -19,48 +23,26 @@
 		{ num: 7, name: 'Dimanche' }
 	];
 
-	let dialogOpen = $state(false);
-	let selectedDay = $state<number | null>(null);
-	let tempTime = $state<string>('');
+	let saving = $state(false);
 
-	function openDialog(dayNum: number) {
-		selectedDay = dayNum;
-		tempTime = schedules[dayNum] ?? '';
-		dialogOpen = true;
-	}
-
-	function closeDialog() {
-		dialogOpen = false;
-		selectedDay = null;
-		tempTime = '';
-	}
-
-	function saveTime() {
-		if (selectedDay !== null) {
-			schedules[selectedDay] = tempTime || null;
+	async function handleSave() {
+		saving = true;
+		try {
+			await saveCohortSchedules(cohortId, schedules);
+			toast.success('Horaires enregistrés avec succès.');
+		} catch (e) {
+			toast.error("Une erreur est survenue lors de l'enregistrement des horaires.");
+		} finally {
+			saving = false;
 		}
-		closeDialog();
 	}
 </script>
 
 <div>
-	<Button
-		variant="outline"
-		size="sm"
-		type="button"
-		onclick={() => {
-			dialogOpen = true;
-		}}
-	>
-		Voir/Modifier les horaires
-	</Button>
-
-	<Dialog.Root
-		open={dialogOpen}
-		onOpenChange={(open) => {
-			if (!open) closeDialog();
-		}}
-	>
+	<Dialog.Root>
+		<Dialog.Trigger>
+			<Button variant="outline" size="sm" type="button">Voir/Modifier les horaires</Button>
+		</Dialog.Trigger>
 		<Dialog.Content>
 			<Dialog.Header>
 				<Dialog.Title>Horaires de la semaine</Dialog.Title>
@@ -69,7 +51,6 @@
 				class="grid gap-2"
 				onsubmit={(e) => {
 					e.preventDefault();
-					closeDialog();
 				}}
 			>
 				{#each days as day}
@@ -83,8 +64,12 @@
 				{/each}
 			</div>
 			<Dialog.Footer>
-				<Button>Enregistrer</Button>
-				<Button variant="outline" onclick={closeDialog}>Annuler</Button>
+				<Button onclick={handleSave} disabled={saving}>
+					{#if saving}
+						<Loader2 class="animate-spin" />
+					{/if}
+					Enregistrer
+				</Button>
 			</Dialog.Footer>
 		</Dialog.Content>
 	</Dialog.Root>

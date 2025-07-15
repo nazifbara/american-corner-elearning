@@ -35,6 +35,10 @@ export const columns: ColumnDef<Cohort>[] = [
 	{
 		accessorKey: 'schedules',
 		header: 'Horaires',
-		cell: ({ row }) => renderComponent(SchedulesCell, { schedules: row.original.schedules })
+		cell: ({ row }) =>
+			renderComponent(SchedulesCell, {
+				cohortId: row.original.id,
+				schedules: row.original.schedules
+			})
 	}
 ];

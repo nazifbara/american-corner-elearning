@@ -142,3 +142,16 @@ export async function getCohort(param: { number: number; year: number }) {
 		throw new Error('Failed to fetch cohort');
 	}
 }
+
+export async function saveCohortSchedules(
+	cohortId: string,
+	schedules: Record<number, string | null>
+): Promise<void> {
+	try {
+		const cohortRef = doc(firestore, 'cohorts', cohortId);
+		await updateDoc(cohortRef, { schedules });
+	} catch (error) {
+		console.error('Error saving cohort schedules:', error);
+		throw new Error('Failed to save cohort schedules');
+	}
+}
