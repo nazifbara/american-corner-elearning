@@ -17,6 +17,7 @@ export type Cohort = {
 	coach: string | null;
 	members: Record<string, true>;
 	schedules: Record<number, string | null>;
+	startDate: string | null;
 };
 
 export type CreateCohort = {
@@ -93,7 +94,8 @@ export async function addCohort(cohort: CreateCohort): Promise<Cohort> {
 			...cohort,
 			members: {},
 			coach: null,
-			schedules: { 1: null, 2: null, 3: null, 4: null, 5: null, 6: null, 7: null }
+			schedules: { 1: null, 2: null, 3: null, 4: null, 5: null, 6: null, 7: null },
+			startDate: null
 		};
 		const docRef = await addDoc(cohortsRef, data);
 		return { id: docRef.id, ...data };
