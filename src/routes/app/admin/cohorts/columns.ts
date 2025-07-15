@@ -34,7 +34,7 @@ export const columns: ColumnDef<Cohort>[] = [
 	},
 	{
 		accessorKey: 'schedules',
-		header: 'Programmation',
-		cell: () => renderComponent(SchedulesCell)
+		header: 'Horaires',
+		cell: ({ row }) => renderComponent(SchedulesCell, { schedules: row.original.schedules })
 	}
 ];
