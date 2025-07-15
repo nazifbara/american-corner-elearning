@@ -63,7 +63,7 @@
 	<div class="text-muted-foreground text-center">Aucune cohorte trouvée.</div>
 {:else}
 	{#key cohortList.data.length}
-		<div class="mx-auto w-full max-w-2xl">
+		<div class="mx-auto w-full">
 			<DataTable data={cohortList.data} {columns} />
 		</div>
 	{/key}

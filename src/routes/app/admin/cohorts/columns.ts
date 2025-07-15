@@ -1,6 +1,7 @@
 import type { ColumnDef } from '@tanstack/table-core';
+import { createRawSnippet } from 'svelte';
 import type { Cohort } from '$lib/firebase/cohorts';
-import { renderComponent } from '$lib/components/ui/data-table';
+import { renderComponent, renderSnippet } from '$lib/components/ui/data-table';
 import MembersCell from './members-cell.svelte';
 import CoachCell from './coach-cell.svelte';
 import SchedulesCell from './schedules-cell.svelte';
@@ -8,7 +9,20 @@ import SchedulesCell from './schedules-cell.svelte';
 export const columns: ColumnDef<Cohort>[] = [
 	{
 		accessorKey: 'number',
-		header: 'Numéro'
+		header: () => {
+			const numberCellSnippet = createRawSnippet(() => ({
+				render: () => `<div class="text-center font-medium">Numéro</div>`
+			}));
+
+			return renderSnippet(numberCellSnippet, '');
+		},
+		cell: ({ row }) => {
+			const numberCellSnippet = createRawSnippet(() => ({
+				render: () => `<div class="text-center font-medium">${row.original.number}</div>`
+			}));
+
+			return renderSnippet(numberCellSnippet, '');
+		}
 	},
 	{
 		accessorKey: 'year',
