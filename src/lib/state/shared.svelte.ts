@@ -4,6 +4,7 @@ import { ListHandler } from './list-handler.svelte';
 
 type AuthState = {
 	user: User | null;
+	profile: Profile | null;
 };
 
 type ProfilesState = {
@@ -36,7 +37,7 @@ class CoachList extends ListHandler<Profile> {
 	};
 }
 
-export const authState: AuthState = $state({ user: null });
+export const authState: AuthState = $state({ user: null, profile: null });
 
 export const profilesState: ProfilesState = $state({ loading: true, profiles: [] });
 

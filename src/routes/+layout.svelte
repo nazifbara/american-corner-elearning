@@ -8,7 +8,7 @@
 	import { goto } from '$app/navigation';
 	import { Toaster } from '$lib/components/ui/sonner';
 	import { ModeWatcher } from 'mode-watcher';
-	import { getProfiles } from '$lib/firebase/profiles';
+	import { getProfiles, getProfile } from '$lib/firebase/profiles';
 	import { profilesState } from '$lib/state/shared.svelte';
 
 	let initialized = $state(false);
@@ -22,9 +22,10 @@
 			profilesState.loading = false;
 		});
 
-		onAuthStateChanged(firebaseAuth, (user) => {
+		onAuthStateChanged(firebaseAuth, async (user) => {
 			if (user) {
 				authState.user = user;
+				authState.profile = await getProfile(user.uid);
 				console.log('User is logged in', user.email);
 			} else {
 				authState.user = null;
