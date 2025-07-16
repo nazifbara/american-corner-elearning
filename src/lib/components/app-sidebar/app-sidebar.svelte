@@ -8,6 +8,7 @@
 		UsersIcon
 	} from '@lucide/svelte';
 	import { firebaseAuth } from '$lib/firebase';
+	import { checkAdmin } from '$lib/state/shared.svelte';
 	import { page } from '$app/state';
 
 	import * as Sidebar from '$lib/components/ui/sidebar';
@@ -72,25 +73,27 @@
 			</Sidebar.GroupContent>
 		</Sidebar.Group>
 
-		<Sidebar.Group>
-			<Sidebar.GroupLabel>Administration</Sidebar.GroupLabel>
-			<Sidebar.GroupContent>
-				<Sidebar.Menu>
-					{#each adminItems as item (item.title)}
-						<Sidebar.MenuItem>
-							<Sidebar.MenuButton isActive={page.url.pathname === item.url}>
-								{#snippet child({ props })}
-									<a href={item.url} {...props}>
-										<item.icon />
-										<span>{item.title}</span>
-									</a>
-								{/snippet}
-							</Sidebar.MenuButton>
-						</Sidebar.MenuItem>
-					{/each}
-				</Sidebar.Menu>
-			</Sidebar.GroupContent>
-		</Sidebar.Group>
+		{#if checkAdmin()}
+			<Sidebar.Group>
+				<Sidebar.GroupLabel>Administration</Sidebar.GroupLabel>
+				<Sidebar.GroupContent>
+					<Sidebar.Menu>
+						{#each adminItems as item (item.title)}
+							<Sidebar.MenuItem>
+								<Sidebar.MenuButton isActive={page.url.pathname === item.url}>
+									{#snippet child({ props })}
+										<a href={item.url} {...props}>
+											<item.icon />
+											<span>{item.title}</span>
+										</a>
+									{/snippet}
+								</Sidebar.MenuButton>
+							</Sidebar.MenuItem>
+						{/each}
+					</Sidebar.Menu>
+				</Sidebar.GroupContent>
+			</Sidebar.Group>
+		{/if}
 	</Sidebar.Content>
 
 	<Sidebar.Footer>

@@ -37,7 +37,9 @@ class CoachList extends ListHandler<Profile> {
 	};
 }
 
-export const authState: AuthState = $state({ user: null, profile: null });
+export const authState: AuthState = $state({ user: null, profile: null, loading: true });
+const isAdmin = $derived(authState.profile ? authState.profile.roles.includes('admin') : false);
+export const checkAdmin = () => isAdmin;
 
 export const profilesState: ProfilesState = $state({ loading: true, profiles: [] });
 

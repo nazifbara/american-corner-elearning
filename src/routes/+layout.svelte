@@ -10,6 +10,8 @@
 	import { ModeWatcher } from 'mode-watcher';
 	import { getProfiles, getProfile } from '$lib/firebase/profiles';
 	import { profilesState } from '$lib/state/shared.svelte';
+	import { Loader } from 'svelte-sonner';
+	import { Loader2Icon } from '@lucide/svelte';
 
 	let initialized = $state(false);
 
@@ -23,6 +25,7 @@
 		});
 
 		onAuthStateChanged(firebaseAuth, async (user) => {
+			authState.loading = true;
 			if (user) {
 				authState.user = user;
 				authState.profile = await getProfile(user.uid);
@@ -32,6 +35,7 @@
 				console.log('User is logged out');
 				goto('/auth/login');
 			}
+			authState.loading = false;
 		});
 	});
 
@@ -41,4 +45,10 @@
 <Toaster />
 <ModeWatcher />
 
-{@render children?.()}
+{#if authState.loading}
+	<div class="grid h-dvh w-dvw content-center justify-center">
+		<Loader2Icon class="w-fit animate-spin" />
+	</div>
+{:else}
+	{@render children?.()}
+{/if}
