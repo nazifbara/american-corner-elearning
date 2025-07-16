@@ -27,6 +27,19 @@ export type CreateCohort = {
 
 const cohortsRef = collection(firestore, 'cohorts');
 
+export async function updateCohortStartDate(
+	cohortId: string,
+	startDate: string | null
+): Promise<void> {
+	try {
+		const cohortRef = doc(firestore, 'cohorts', cohortId);
+		await updateDoc(cohortRef, { startDate });
+	} catch (error) {
+		console.error('Error updating cohort startDate:', error);
+		throw new Error('Failed to update cohort startDate');
+	}
+}
+
 export async function updateCohortCoach(cohortId: string, coachId: string) {
 	try {
 		const cohortRef = doc(firestore, 'cohorts', cohortId);

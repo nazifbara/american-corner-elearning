@@ -59,6 +59,10 @@ export const columns: ColumnDef<Cohort>[] = [
 	{
 		accessorKey: 'startDate',
 		header: 'Début',
-		cell: () => renderComponent(StartDateCell)
+		cell: ({ row }) =>
+			renderComponent(StartDateCell, {
+				cohortId: row.original.id,
+				startDate: row.original.startDate
+			})
 	}
 ];
