@@ -5,6 +5,7 @@ import { renderComponent, renderSnippet } from '$lib/components/ui/data-table';
 import MembersCell from './members-cell.svelte';
 import CoachCell from './coach-cell.svelte';
 import SchedulesCell from './schedules-cell.svelte';
+import StartDateCell from './start-date-cell.svelte';
 
 export const columns: ColumnDef<Cohort>[] = [
 	{
@@ -54,5 +55,10 @@ export const columns: ColumnDef<Cohort>[] = [
 				cohortId: row.original.id,
 				schedules: row.original.schedules
 			})
+	},
+	{
+		accessorKey: 'startDate',
+		header: 'Début',
+		cell: () => renderComponent(StartDateCell)
 	}
 ];
