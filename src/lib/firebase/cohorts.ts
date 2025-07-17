@@ -7,8 +7,10 @@ import {
 	addDoc,
 	updateDoc,
 	doc,
-	deleteField
+	deleteField,
+	getDoc
 } from 'firebase/firestore';
+import type { Profile } from './profiles';
 
 export type Cohort = {
 	id: string;
@@ -26,6 +28,24 @@ export type CreateCohort = {
 };
 
 const cohortsRef = collection(firestore, 'cohorts');
+
+export async function getCurrentCohort(profile: Profile): Promise<Cohort | null> {
+	try {
+		const id = Object.keys(profile.cohorts)[0];
+		if (!id) {
+			return null;
+		}
+		const cohortRef = doc(firestore, 'cohorts', id);
+		const snapshot = await getDoc(cohortRef);
+		if (!snapshot.exists) {
+			return null;
+		}
+		return { id: snapshot.id, ...snapshot.data() } as Cohort;
+	} catch (error) {
+		console.error("Error getting user's cohort:", error);
+		throw new Error("Failed to get user's cohort");
+	}
+}
 
 export async function updateCohortStartDate(
 	cohortId: string,
