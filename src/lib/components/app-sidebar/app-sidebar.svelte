@@ -5,6 +5,7 @@
 		SettingsIcon,
 		LogOutIcon,
 		BoxesIcon,
+		BoxIcon,
 		UsersIcon
 	} from '@lucide/svelte';
 	import { firebaseAuth } from '$lib/firebase';
@@ -17,9 +18,9 @@
 
 	const appitems = [
 		{
-			title: 'Cours',
-			url: `${baseUrl}/courses`,
-			icon: BookIcon
+			title: 'Ma cohorte',
+			url: `${baseUrl}/cohort`,
+			icon: BoxIcon
 		},
 		{
 			title: 'Profile',

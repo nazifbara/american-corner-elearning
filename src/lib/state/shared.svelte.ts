@@ -5,6 +5,7 @@ import { ListHandler } from './list-handler.svelte';
 type AuthState = {
 	user: User | null;
 	profile: Profile | null;
+	loading: boolean;
 };
 
 type ProfilesState = {

@@ -10,7 +10,6 @@
 	import { ModeWatcher } from 'mode-watcher';
 	import { getProfiles, getProfile } from '$lib/firebase/profiles';
 	import { profilesState } from '$lib/state/shared.svelte';
-	import { Loader } from 'svelte-sonner';
 	import { Loader2Icon } from '@lucide/svelte';
 
 	let initialized = $state(false);
