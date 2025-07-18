@@ -6,8 +6,17 @@
 	import { Separator } from '$lib/components/ui/separator';
 	import * as Card from '$lib/components/ui/card';
 	import * as Tabs from '$lib/components/ui/tabs';
+	import { getProfile, type Profile } from '$lib/firebase/profiles';
 
 	const cohortState = new EntityState<Cohort>(() => getCurrentCohort(authState.profile!));
+	const coachState = new EntityState<Profile>(() => Promise.resolve(null));
+
+	$effect(() => {
+		if (cohortState.data) {
+			coachState.fetchFn = () => getProfile(cohortState.data!.coach!);
+			coachState.fetch();
+		}
+	});
 </script>
 
 {#if cohortState.loading}
@@ -25,7 +34,11 @@
 			<Card.Description class="grid grid-cols-[repeat(3,auto)] items-center justify-start gap-2">
 				<div class="flex items-center gap-2">
 					<UserIcon />
-					<span>{cohortState.data.coach ?? 'Aucun'}</span>
+					{#if coachState.loading}
+						<Loader2Icon class="animate-spin" />
+					{:else}
+						<span>{coachState.data?.displayName ?? 'Aucun'}</span>
+					{/if}
 				</div>
 				<Separator orientation="vertical" />
 				<div class="flex items-center gap-2">

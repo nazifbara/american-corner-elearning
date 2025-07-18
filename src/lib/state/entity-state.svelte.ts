@@ -2,10 +2,10 @@ export class EntityState<T> {
 	#loading = $state(true);
 	#error = $state<string | null>(null);
 	#data = $state<T | null>(null);
-	#fetchFn;
+	fetchFn;
 
 	constructor(fetchFn: () => Promise<T | null>) {
-		this.#fetchFn = fetchFn;
+		this.fetchFn = fetchFn;
 		this.fetch();
 	}
 
@@ -24,7 +24,7 @@ export class EntityState<T> {
 	async fetch() {
 		try {
 			this.#loading = true;
-			this.#data = await this.#fetchFn();
+			this.#data = await this.fetchFn();
 		} catch (error) {
 			console.error(error);
 			this.#error = "Une erreur est survenue lors de la récupération de l'élément.";
