@@ -1,13 +1,13 @@
 <script lang="ts">
-	import { getCurrentCohort } from '$lib/firebase/cohorts';
+	import { getCurrentCohort, type Cohort } from '$lib/firebase/cohorts';
 	import { authState } from '$lib/state/shared.svelte';
-	import { CohortState } from './cohort.svelte';
+	import { EntityState } from '$lib/state/entity-state.svelte';
 	import { Loader2Icon, UserIcon, PlayIcon, ClockIcon } from '@lucide/svelte';
 	import { Separator } from '$lib/components/ui/separator';
 	import * as Card from '$lib/components/ui/card';
 	import * as Tabs from '$lib/components/ui/tabs';
 
-	const cohortState = new CohortState(() => getCurrentCohort(authState.profile!));
+	const cohortState = new EntityState<Cohort>(() => getCurrentCohort(authState.profile!));
 </script>
 
 {#if cohortState.loading}

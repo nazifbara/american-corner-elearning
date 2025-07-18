@@ -1,12 +1,10 @@
-import type { Cohort } from '$lib/firebase/cohorts';
-
-export class CohortState {
+export class EntityState<T> {
 	#loading = $state(true);
 	#error = $state<string | null>(null);
-	#data = $state<Cohort | null>(null);
+	#data = $state<T | null>(null);
 	#fetchFn;
 
-	constructor(fetchFn: () => Promise<Cohort | null>) {
+	constructor(fetchFn: () => Promise<T | null>) {
 		this.#fetchFn = fetchFn;
 		this.fetch();
 	}
@@ -29,7 +27,7 @@ export class CohortState {
 			this.#data = await this.#fetchFn();
 		} catch (error) {
 			console.error(error);
-			this.#error = "Une erreur s'est produite lors de la récupération de la cohorte.";
+			this.#error = "Une erreur est survenue lors de la récupération de l'élément.";
 		} finally {
 			this.#loading = false;
 		}
