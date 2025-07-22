@@ -7,14 +7,25 @@
 	import * as Card from '$lib/components/ui/card';
 	import * as Tabs from '$lib/components/ui/tabs';
 	import { getProfile, type Profile } from '$lib/firebase/profiles';
+	import { ListHandler } from '$lib/state/list-handler.svelte';
 
 	const cohortState = new EntityState<Cohort>(() => getCurrentCohort(authState.profile!));
 	const coachState = new EntityState<Profile>(() => Promise.resolve(null));
+	const membersState = new ListHandler<Profile>({
+		fetchFn: () => {
+			if (cohortState.data) {
+				const memberIds = Object.keys(cohortState.data.members || {});
+				return Promise.all(memberIds.map((id) => getProfile(id) as Promise<Profile>));
+			}
+			return Promise.resolve([]);
+		}
+	});
 
 	$effect(() => {
 		if (cohortState.data) {
 			coachState.fetchFn = () => getProfile(cohortState.data!.coach!);
 			coachState.fetch();
+			membersState.fetch();
 		}
 	});
 </script>
@@ -60,7 +71,7 @@
 					{#each Object.entries(cohortState.data.schedules).filter( ([__, time]) => Boolean(time) ) as [day, time]}
 						<div class="flex flex-col items-center gap-2">
 							<span
-								class="bg-primary text-primary-foreground flex aspect-square items-center rounded-full p-2 text-xs font-medium"
+								class="bg-primary text-primary-foreground flex aspect-square w-20 items-center justify-center rounded-full p-2 text-xs font-medium"
 								>{['Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi', 'Dimanche'][
 									+day - 1
 								]}</span
@@ -85,17 +96,19 @@
 				<Tabs.Content value="members">
 					<div>
 						<h2 class="mb-2 text-lg font-semibold">Membres</h2>
-						<div>
-							{#if cohortState.data.members && Object.keys(cohortState.data.members).length > 0}
-								<ul class="ml-6 list-disc">
-									{#each Object.keys(cohortState.data.members) as memberId}
-										<li>{memberId}</li>
-									{/each}
-								</ul>
-							{:else}
-								<span>Aucun membre</span>
-							{/if}
-						</div>
+						{#if membersState.loading}
+							<Loader2Icon size={20} class="animate-spin" />
+						{:else if membersState.error}
+							<p class="text-destructive">{membersState.error}</p>
+						{:else if membersState.data.length === 0}
+							<p>Aucun membre trouvé.</p>
+						{:else}
+							<ul class="list-disc pl-6">
+								{#each membersState.data as member}
+									<li>{member.displayName}</li>
+								{/each}
+							</ul>
+						{/if}
 					</div>
 				</Tabs.Content>
 			</Tabs.Root>
