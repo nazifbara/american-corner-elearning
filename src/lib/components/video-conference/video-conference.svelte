@@ -7,13 +7,14 @@
 	import { startCourse, endCourse, type Course } from '$lib/firebase/courses';
 	import { authState } from '$lib/state/shared.svelte';
 	import * as Dialog from '$lib/components/ui/dialog';
+	import type { Cohort } from '$lib/firebase/cohorts';
 
 	type Props = {
-		course: Course;
+		cohort: Cohort;
 	};
 
-	const { course }: Props = $props();
-	const isCreator = authState.user?.uid === course.userId;
+	const { cohort }: Props = $props();
+	const isCoach = authState.user?.uid === cohort.coach;
 
 	const appId = PUBLIC_AGORA_APP_ID;
 
@@ -75,7 +76,7 @@
 					'Content-Type': 'application/json'
 				},
 				body: JSON.stringify({
-					channelName: course.id,
+					channelName: cohort.id,
 					uid: authState.user!.uid
 				})
 			});
@@ -108,15 +109,8 @@
 			}
 
 			// Join the channel with token
-			await client.join(appId, course.id, token, authState.user!.uid);
+			await client.join(appId, cohort.id, token, authState.user!.uid);
 			joined = true;
-
-			// Start the course if creator and not already started
-			if (!course.startedAt && isCreator) {
-				await startCourse(course.id);
-			} else if (!course.startedAt && !isCreator) {
-				throw new Error("Le cours n'a pas encore commencé");
-			}
 
 			// Create and publish local tracks
 			[localAudioTrack, localVideoTrack] = await AgoraRTC.createMicrophoneAndCameraTracks();
@@ -141,26 +135,20 @@
 		client && (await client.leave());
 		joined = false;
 		token = null;
-
-		// End the course if the creator is leaving
-		if (isCreator && course.startedAt) {
-			await endCourse(course.id);
-		}
 	}
 </script>
 
 <div class="flex flex-col gap-4">
 	{#if !joined}
-		{#if !course.startedAt && !isCreator}
-			<p class="text-muted-foreground text-sm">En attente du début du cours par le créateur...</p>
-		{:else}
-			<Button onclick={joinChannel} disabled={joining}>
-				{#if joining}
-					<Loader2Icon size={20} class="animate-spin" />
-				{/if}
-				{isCreator && !course.startedAt ? 'Démarrer la conférence' : 'Rejoindre la conférence'}
-			</Button>
-		{/if}
+		<Button onclick={joinChannel} disabled={joining}>
+			{#if joining}
+				<Loader2Icon size={20} class="animate-spin" />
+			{/if}
+			Rejoindre le cours
+			{#if isCoach}
+				(En tant que coach)
+			{/if}
+		</Button>
 	{:else}
 		<Dialog.Root
 			bind:open={joined}

@@ -1,4 +1,6 @@
 <script lang="ts">
+	import { onMount } from 'svelte';
+	import { page } from '$app/state';
 	import { getCurrentCohort, type Cohort } from '$lib/firebase/cohorts';
 	import { authState } from '$lib/state/shared.svelte';
 	import { EntityState } from '$lib/state/entity-state.svelte';
@@ -8,6 +10,8 @@
 	import * as Tabs from '$lib/components/ui/tabs';
 	import { getProfile, type Profile } from '$lib/firebase/profiles';
 	import { ListHandler } from '$lib/state/list-handler.svelte';
+	import { VideoConference } from '$lib/components/video-conference';
+	import { subscribeToCourse } from '$lib/firebase/courses';
 
 	const cohortState = new EntityState<Cohort>(() => getCurrentCohort(authState.profile!));
 	const coachState = new EntityState<Profile>(() => Promise.resolve(null));
@@ -19,6 +23,12 @@
 			}
 			return Promise.resolve([]);
 		}
+	});
+
+	const cohortId = page.params.cohortId;
+	let unsubscribe: (() => void) | null = null;
+	let allowedUserIds = $derived.by(() => {
+		return [cohortState.data?.coach, ...Object.keys(cohortState.data?.members || {})];
 	});
 
 	$effect(() => {
@@ -81,7 +91,7 @@
 					{/each}
 				</div>
 			</div>
-			<Tabs.Root value="members">
+			<Tabs.Root value="course">
 				<Tabs.List>
 					<Tabs.Trigger value="course">Cours</Tabs.Trigger>
 					<Tabs.Trigger value="posts">Posts</Tabs.Trigger>
@@ -89,7 +99,27 @@
 					<Tabs.Trigger value="grades">Notes</Tabs.Trigger>
 					<Tabs.Trigger value="members">Membres</Tabs.Trigger>
 				</Tabs.List>
-				<Tabs.Content value="course">Cours</Tabs.Content>
+				<Tabs.Content value="course">
+					<div class="space-y-4">
+						<div class="grid gap-4 md:grid-cols-2">
+							<Card.Root>
+								<Card.Header>
+									<Card.Title>Conférence vidéo</Card.Title>
+									<Card.Description>Rejoignez la conférence vidéo pour ce cours</Card.Description>
+								</Card.Header>
+								<Card.Content>
+									{#if allowedUserIds.includes(authState.user!.uid) && coachState.data}
+										<VideoConference cohort={cohortState.data} />
+									{:else}
+										<p class="text-muted-foreground">
+											Vous n'êtes pas autorisé à rejoindre cette conférence vidéo.
+										</p>
+									{/if}
+								</Card.Content>
+							</Card.Root>
+						</div>
+					</div>
+				</Tabs.Content>
 				<Tabs.Content value="posts">Liste des posts</Tabs.Content>
 				<Tabs.Content value="exercices">Liste des exercices</Tabs.Content>
 				<Tabs.Content value="grades">List des notes</Tabs.Content>

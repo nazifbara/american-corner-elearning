@@ -13,7 +13,7 @@ import {
 
 export type Course = {
 	id: string;
-	userId: string; // Creator of the course
+	userId: string;
 	title: string;
 	description: string;
 	participants: Record<string, true>;
