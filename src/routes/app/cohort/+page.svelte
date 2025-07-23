@@ -31,6 +31,24 @@
 		return [cohortState.data?.coach, ...Object.keys(cohortState.data?.members || {})];
 	});
 
+	function canJoinCourseToday(cohort: Cohort): boolean {
+		if (!cohort.startDate || !cohort.schedules) return false;
+		const now = new Date();
+		const startDate = new Date(cohort.startDate);
+		if (now < startDate) return false;
+		// JS: Sunday=0, Monday=1, ...
+		const today = now.getDay() === 0 ? 7 : now.getDay(); // convert Sunday(0) to 7
+		const scheduleTime = cohort.schedules[today];
+		if (!scheduleTime) return false;
+		// scheduleTime is expected as 'HH:mm' or 'H:mm'
+		const [hour, minute] = scheduleTime.split(':').map(Number);
+		const startOfSession = new Date(now.getFullYear(), now.getMonth(), now.getDate(), hour, minute);
+		// Optionally, allow join X minutes before/after. Here, allow from 15min before to 2h after
+		const joinWindowStart = new Date(startOfSession.getTime() - 15 * 60 * 1000);
+		const joinWindowEnd = new Date(startOfSession.getTime() + 2 * 60 * 60 * 1000);
+		return now >= joinWindowStart && now <= joinWindowEnd;
+	}
+
 	$effect(() => {
 		if (cohortState.data) {
 			coachState.fetchFn = () => getProfile(cohortState.data!.coach!);
@@ -108,8 +126,13 @@
 									<Card.Description>Rejoignez la conférence vidéo pour ce cours</Card.Description>
 								</Card.Header>
 								<Card.Content>
-									{#if allowedUserIds.includes(authState.user!.uid) && coachState.data}
+									{#if allowedUserIds.includes(authState.user!.uid) && coachState.data && canJoinCourseToday(cohortState.data)}
 										<VideoConference cohort={cohortState.data} />
+									{:else if allowedUserIds.includes(authState.user!.uid) && coachState.data}
+										<p class="text-muted-foreground">
+											Vous ne pouvez rejoindre la conférence vidéo qu'aux horaires prévus à partir
+											de la date de début du cours.
+										</p>
 									{:else}
 										<p class="text-muted-foreground">
 											Vous n'êtes pas autorisé à rejoindre cette conférence vidéo.
