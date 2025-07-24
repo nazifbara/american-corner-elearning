@@ -1,17 +1,14 @@
 <script lang="ts">
-	import { onMount } from 'svelte';
-	import { page } from '$app/state';
 	import { getCurrentCohort, type Cohort } from '$lib/firebase/cohorts';
 	import { authState } from '$lib/state/shared.svelte';
 	import { EntityState } from '$lib/state/entity-state.svelte';
-	import { Loader2Icon, UserIcon, PlayIcon, ClockIcon } from '@lucide/svelte';
+	import { Loader2Icon, PresentationIcon, PlayIcon, ClockIcon } from '@lucide/svelte';
 	import { Separator } from '$lib/components/ui/separator';
 	import * as Card from '$lib/components/ui/card';
 	import * as Tabs from '$lib/components/ui/tabs';
 	import { getProfile, type Profile } from '$lib/firebase/profiles';
 	import { ListHandler } from '$lib/state/list-handler.svelte';
 	import { VideoConference } from '$lib/components/video-conference';
-	import { subscribeToCourse } from '$lib/firebase/courses';
 	import dayjs from 'dayjs';
 	import duration from 'dayjs/plugin/duration';
 	dayjs.extend(duration);
@@ -28,8 +25,6 @@
 		}
 	});
 
-	const cohortId = page.params.cohortId;
-	let unsubscribe: (() => void) | null = null;
 	let allowedUserIds = $derived.by(() => {
 		return [cohortState.data?.coach, ...Object.keys(cohortState.data?.members || {})];
 	});
@@ -131,109 +126,109 @@
 {:else if cohortState.error}
 	<p class="text-destructive">{cohortState.error}</p>
 {:else if cohortState.data}
-	<Card.Root class="mx-auto grid max-w-4xl gap-6">
-		<Card.Header>
-			<Card.Title class="text-3xl font-normal"
-				>Cohorte {cohortState.data.number} - {cohortState.data.year}</Card.Title
-			>
-			<Card.Description class="grid grid-cols-[repeat(3,auto)] items-center justify-start gap-2">
-				<div class="flex items-center gap-2">
-					<UserIcon />
-					{#if coachState.loading}
-						<Loader2Icon class="animate-spin" />
-					{:else}
-						<span>{coachState.data?.displayName ?? 'Aucun'}</span>
-					{/if}
-				</div>
-				<Separator orientation="vertical" />
-				<div class="flex items-center gap-2">
-					<PlayIcon />
-					<span
-						>{cohortState.data.startDate
-							? new Date(cohortState.data.startDate).toLocaleDateString('fr-FR')
-							: 'Non définie'}</span
-					>
-				</div>
-			</Card.Description>
-		</Card.Header>
-		<Card.Content class="space-y-4">
-			<div>
-				<h2 class="mb-2 flex items-center gap-2 text-sm font-semibold">
-					<ClockIcon size={20} /> Horaires
-				</h2>
-				<div class="flex gap-4">
-					{#each Object.entries(cohortState.data.schedules).filter( ([__, time]) => Boolean(time) ) as [day, time]}
-						<div class="flex flex-col items-center gap-2">
-							<span
-								class="bg-primary text-primary-foreground flex aspect-square w-20 items-center justify-center rounded-full p-2 text-xs font-medium"
-								>{['Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi', 'Dimanche'][
-									+day - 1
-								]}</span
-							>
-							<span class="text-sm font-medium">{time}</span>
-						</div>
-					{/each}
-				</div>
-			</div>
-			<Tabs.Root value="course">
-				<Tabs.List>
-					<Tabs.Trigger value="course">Cours</Tabs.Trigger>
-					<Tabs.Trigger value="posts">Posts</Tabs.Trigger>
-					<Tabs.Trigger value="exercices">Exercices</Tabs.Trigger>
-					<Tabs.Trigger value="grades">Notes</Tabs.Trigger>
-					<Tabs.Trigger value="members">Membres</Tabs.Trigger>
-				</Tabs.List>
-				<Tabs.Content value="course">
-					<div class="space-y-4">
-						<div class="grid gap-4 md:grid-cols-2">
-							<Card.Root>
-								<Card.Header>
-									<Card.Title>Conférence vidéo</Card.Title>
-									<Card.Description>Rejoignez la conférence vidéo pour ce cours</Card.Description>
-								</Card.Header>
-								<Card.Content>
-									{#if allowedUserIds.includes(authState.user!.uid) && coachState.data && canJoinCourseToday(cohortState.data)}
-										<VideoConference cohort={cohortState.data} />
-									{:else if allowedUserIds.includes(authState.user!.uid) && coachState.data}
-										<p class="text-muted-foreground">
-											Vous ne pouvez rejoindre la conférence vidéo qu'aux horaires prévus à partir
-											de la date de début du cours.<br />
-											{#if countdown}
-												<span>Début dans : {countdown}</span>
-											{/if}
-										</p>
-									{:else}
-										<p class="text-muted-foreground">
-											Vous n'êtes pas autorisé à rejoindre cette conférence vidéo.
-										</p>
-									{/if}
-								</Card.Content>
-							</Card.Root>
-						</div>
-					</div>
-				</Tabs.Content>
-				<Tabs.Content value="posts">Liste des posts</Tabs.Content>
-				<Tabs.Content value="exercices">Liste des exercices</Tabs.Content>
-				<Tabs.Content value="grades">List des notes</Tabs.Content>
-				<Tabs.Content value="members">
-					<div>
-						<h2 class="mb-2 text-lg font-semibold">Membres</h2>
-						{#if membersState.loading}
-							<Loader2Icon size={20} class="animate-spin" />
-						{:else if membersState.error}
-							<p class="text-destructive">{membersState.error}</p>
-						{:else if membersState.data.length === 0}
-							<p>Aucun membre trouvé.</p>
+	<div class="mx-auto grid max-w-4xl gap-6">
+		<Card.Root class="grid  gap-6">
+			<Card.Header>
+				<Card.Title class="text-3xl font-normal"
+					>Cohorte {cohortState.data.number} - {cohortState.data.year}</Card.Title
+				>
+				<Card.Description class="grid grid-cols-[repeat(3,auto)] items-center justify-start gap-2">
+					<div class="flex items-center gap-2">
+						<PresentationIcon size={20} />
+						{#if coachState.loading}
+							<Loader2Icon class="animate-spin" />
 						{:else}
-							<ul class="list-disc pl-6">
-								{#each membersState.data as member}
-									<li>{member.displayName}</li>
-								{/each}
-							</ul>
+							<span>{coachState.data?.displayName ?? 'Aucun'}</span>
 						{/if}
 					</div>
-				</Tabs.Content>
-			</Tabs.Root>
-		</Card.Content>
-	</Card.Root>
+					<Separator orientation="vertical" />
+					<div class="flex items-center gap-2">
+						<PlayIcon size={20} />
+						<span
+							>{cohortState.data.startDate
+								? new Date(cohortState.data.startDate).toLocaleDateString('fr-FR')
+								: 'Non définie'}</span
+						>
+					</div>
+				</Card.Description>
+			</Card.Header>
+			<Card.Content class="space-y-4">
+				<div>
+					<h2 class="mb-2 flex items-center gap-2 text-sm font-semibold">
+						<ClockIcon size={20} /> Horaires
+					</h2>
+					<div class="flex gap-4">
+						{#each Object.entries(cohortState.data.schedules).filter( ([__, time]) => Boolean(time) ) as [day, time]}
+							<div class="flex flex-col items-center gap-2">
+								<span
+									class="bg-primary text-primary-foreground flex aspect-square w-20 items-center justify-center rounded-full p-2 text-xs font-medium"
+									>{['Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi', 'Dimanche'][
+										+day - 1
+									]}</span
+								>
+								<span class="text-sm font-medium">{time}</span>
+							</div>
+						{/each}
+					</div>
+				</div>
+			</Card.Content>
+		</Card.Root>
+
+		<Tabs.Root value="course" class="gap-4">
+			<Tabs.List class="w-full">
+				<Tabs.Trigger value="course">Cours</Tabs.Trigger>
+				<Tabs.Trigger value="posts">Posts</Tabs.Trigger>
+				<Tabs.Trigger value="exercices">Exercices</Tabs.Trigger>
+				<Tabs.Trigger value="grades">Notes</Tabs.Trigger>
+				<Tabs.Trigger value="members">Membres</Tabs.Trigger>
+			</Tabs.List>
+			<Tabs.Content value="course">
+				<div class="mb-2">
+					<h2 class="text-xl font-semibold">Conférence vidéo</h2>
+					<p class="text-muted-foreground">Rejoignez la conférence vidéo de cette cohorte</p>
+				</div>
+
+				{#if allowedUserIds.includes(authState.user!.uid) && coachState.data && canJoinCourseToday(cohortState.data)}
+					<VideoConference cohort={cohortState.data} />
+				{:else if allowedUserIds.includes(authState.user!.uid) && coachState.data}
+					<p>
+						Vous ne pouvez rejoindre la conférence vidéo qu'aux horaires prévus à partir de la date
+						de début du cours.
+					</p>
+					{#if countdown}
+						<p>
+							{countdown === 'Session terminée'
+								? "Le cours d'aujourd'hui est terminé"
+								: `Début dans : ${countdown}`}
+						</p>
+					{/if}
+				{:else}
+					<p class="text-destructive">
+						Vous n'êtes pas autorisé à rejoindre cette conférence vidéo.
+					</p>
+				{/if}
+			</Tabs.Content>
+			<Tabs.Content value="resources">Liste des ressources</Tabs.Content>
+			<Tabs.Content value="exercices">Liste des exercices</Tabs.Content>
+			<Tabs.Content value="grades">List des notes</Tabs.Content>
+			<Tabs.Content value="members">
+				<div>
+					<h2 class="mb-2 text-xl font-semibold">Membres</h2>
+					{#if membersState.loading}
+						<Loader2Icon size={20} class="animate-spin" />
+					{:else if membersState.error}
+						<p class="text-destructive">{membersState.error}</p>
+					{:else if membersState.data.length === 0}
+						<p>Aucun membre trouvé.</p>
+					{:else}
+						<ul class="list-disc pl-6">
+							{#each membersState.data as member}
+								<li>{member.displayName}</li>
+							{/each}
+						</ul>
+					{/if}
+				</div>
+			</Tabs.Content>
+		</Tabs.Root>
+	</div>
 {/if}
