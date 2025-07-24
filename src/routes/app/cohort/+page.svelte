@@ -12,6 +12,9 @@
 	import { ListHandler } from '$lib/state/list-handler.svelte';
 	import { VideoConference } from '$lib/components/video-conference';
 	import { subscribeToCourse } from '$lib/firebase/courses';
+	import dayjs from 'dayjs';
+	import duration from 'dayjs/plugin/duration';
+	dayjs.extend(duration);
 
 	const cohortState = new EntityState<Cohort>(() => getCurrentCohort(authState.profile!));
 	const coachState = new EntityState<Profile>(() => Promise.resolve(null));
@@ -31,23 +34,86 @@
 		return [cohortState.data?.coach, ...Object.keys(cohortState.data?.members || {})];
 	});
 
-	function canJoinCourseToday(cohort: Cohort): boolean {
-		if (!cohort.startDate || !cohort.schedules) return false;
-		const now = new Date();
-		const startDate = new Date(cohort.startDate);
-		if (now < startDate) return false;
-		// JS: Sunday=0, Monday=1, ...
-		const today = now.getDay() === 0 ? 7 : now.getDay(); // convert Sunday(0) to 7
+	function getJoinWindow(cohort: Cohort) {
+		if (!cohort.startDate || !cohort.schedules) return null;
+		const now = dayjs();
+		const startDate = dayjs(cohort.startDate);
+		if (now.isBefore(startDate, 'day')) return null;
+		const today = now.day() === 0 ? 7 : now.day();
 		const scheduleTime = cohort.schedules[today];
-		if (!scheduleTime) return false;
-		// scheduleTime is expected as 'HH:mm' or 'H:mm'
+		if (!scheduleTime) return null;
 		const [hour, minute] = scheduleTime.split(':').map(Number);
-		const startOfSession = new Date(now.getFullYear(), now.getMonth(), now.getDate(), hour, minute);
-		// Optionally, allow join X minutes before/after. Here, allow from 15min before to 2h after
-		const joinWindowStart = new Date(startOfSession.getTime() - 15 * 60 * 1000);
-		const joinWindowEnd = new Date(startOfSession.getTime() + 2 * 60 * 60 * 1000);
-		return now >= joinWindowStart && now <= joinWindowEnd;
+		const startOfSession = now.hour(hour).minute(minute).second(0).millisecond(0);
+		const joinWindowStart = startOfSession.subtract(15, 'minute');
+		const joinWindowEnd = startOfSession.add(2, 'hour');
+		return { joinWindowStart, joinWindowEnd };
 	}
+
+	function canJoinCourseToday(cohort: Cohort): boolean {
+		const window = getJoinWindow(cohort);
+		if (!window) return false;
+		const now = dayjs();
+		return now.isAfter(window.joinWindowStart) && now.isBefore(window.joinWindowEnd);
+	}
+
+	// Countdown state
+	import { onDestroy } from 'svelte';
+	let countdown = $state('');
+	let countdownInterval: any = null;
+
+	function startCountdown(cohort: Cohort) {
+		stopCountdown();
+		const window = getJoinWindow(cohort);
+		if (!window) return;
+		const now = dayjs();
+		let target: dayjs.Dayjs;
+		if (now.isBefore(window.joinWindowStart)) {
+			target = window.joinWindowStart;
+		} else if (now.isAfter(window.joinWindowEnd)) {
+			countdown = 'Session terminée';
+			return;
+		} else {
+			countdown = '';
+			return;
+		}
+		updateCountdown(target);
+		countdownInterval = setInterval(() => updateCountdown(target), 1000);
+	}
+
+	function stopCountdown() {
+		if (countdownInterval) {
+			clearInterval(countdownInterval);
+			countdownInterval = null;
+		}
+	}
+
+	function updateCountdown(target: dayjs.Dayjs) {
+		const now = dayjs();
+		const diff = target.diff(now);
+		if (diff <= 0) {
+			countdown = 'Ouverture imminente...';
+			stopCountdown();
+			return;
+		}
+		const duration = dayjs.duration(diff);
+		const hours = String(Math.floor(duration.asHours())).padStart(2, '0');
+		const minutes = String(duration.minutes()).padStart(2, '0');
+		const seconds = String(duration.seconds()).padStart(2, '0');
+		countdown = `${hours}:${minutes}:${seconds}`;
+	}
+
+	$effect(() => {
+		if (cohortState.data && !canJoinCourseToday(cohortState.data)) {
+			startCountdown(cohortState.data);
+		} else {
+			stopCountdown();
+			countdown = '';
+		}
+	});
+
+	onDestroy(() => {
+		stopCountdown();
+	});
 
 	$effect(() => {
 		if (cohortState.data) {
@@ -131,7 +197,10 @@
 									{:else if allowedUserIds.includes(authState.user!.uid) && coachState.data}
 										<p class="text-muted-foreground">
 											Vous ne pouvez rejoindre la conférence vidéo qu'aux horaires prévus à partir
-											de la date de début du cours.
+											de la date de début du cours.<br />
+											{#if countdown}
+												<span>Début dans : {countdown}</span>
+											{/if}
 										</p>
 									{:else}
 										<p class="text-muted-foreground">

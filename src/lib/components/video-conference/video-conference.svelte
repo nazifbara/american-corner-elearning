@@ -1,13 +1,17 @@
 <script lang="ts">
 	import { onMount, onDestroy } from 'svelte';
-	import AgoraRTC from 'agora-rtc-sdk-ng';
 	import { Button } from '$lib/components/ui/button';
 	import { PUBLIC_AGORA_APP_ID } from '$env/static/public';
 	import { Loader2Icon, PhoneOffIcon } from '@lucide/svelte';
-	import { startCourse, endCourse, type Course } from '$lib/firebase/courses';
 	import { authState } from '$lib/state/shared.svelte';
 	import * as Dialog from '$lib/components/ui/dialog';
 	import type { Cohort } from '$lib/firebase/cohorts';
+	import type {
+		IAgoraRTC,
+		IAgoraRTCClient,
+		ICameraVideoTrack,
+		IMicrophoneAudioTrack
+	} from 'agora-rtc-sdk-ng';
 
 	type Props = {
 		cohort: Cohort;
@@ -19,9 +23,9 @@
 	const appId = PUBLIC_AGORA_APP_ID;
 
 	let [localAudioTrack, localVideoTrack]:
-		| Awaited<Promise<ReturnType<typeof AgoraRTC.createMicrophoneAndCameraTracks>>>
+		| Awaited<Promise<[IMicrophoneAudioTrack, ICameraVideoTrack]>>
 		| [null, null] = $state([null, null]);
-	let client: ReturnType<typeof AgoraRTC.createClient> | null = $state(null);
+	let client: IAgoraRTCClient | null = $state(null);
 	let joined = $state(false);
 	let joining = $state(false);
 	let token: string | null = null;
@@ -30,7 +34,10 @@
 	let localVideoContainer: HTMLElement | undefined = $state(undefined);
 	let remoteVideoContainer: HTMLElement | undefined = $state(undefined);
 
+	let AgoraRTC: IAgoraRTC | null = $state(null);
+
 	onMount(async () => {
+		AgoraRTC = (await import('agora-rtc-sdk-ng')).default;
 		client = AgoraRTC.createClient({ mode: 'rtc', codec: 'vp8' });
 
 		// Listen for remote users joining
@@ -113,7 +120,7 @@
 			joined = true;
 
 			// Create and publish local tracks
-			[localAudioTrack, localVideoTrack] = await AgoraRTC.createMicrophoneAndCameraTracks();
+			[localAudioTrack, localVideoTrack] = await AgoraRTC!.createMicrophoneAndCameraTracks();
 			await client.publish([localAudioTrack, localVideoTrack]);
 
 			// Play local video

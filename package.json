@@ -58,6 +58,7 @@
 		"agora-rtc-sdk-ng": "^4.23.4",
 		"agora-token": "^2.0.5",
 		"axios": "^1.9.0",
+		"dayjs": "^1.11.13",
 		"firebase": "^11.7.3",
 		"firebase-admin": "^13.4.0",
 		"formsnap": "^2.0.1",
