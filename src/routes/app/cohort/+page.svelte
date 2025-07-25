@@ -86,7 +86,7 @@
 		const now = dayjs();
 		const diff = target.diff(now);
 		if (diff <= 0) {
-			countdown = 'Ouverture imminente...';
+			countdown = 'ouvert';
 			stopCountdown();
 			return;
 		}
@@ -188,23 +188,21 @@
 					<p class="text-muted-foreground">Rejoignez la conférence vidéo de cette cohorte</p>
 				</div>
 
-				{#if allowedUserIds.includes(authState.user!.uid) && coachState.data && canJoinCourseToday(cohortState.data)}
+				{#if canJoinCourseToday(cohortState.data)}
 					<VideoConference cohort={cohortState.data} />
-				{:else if allowedUserIds.includes(authState.user!.uid) && coachState.data}
-					<p>
+				{:else if countdown && countdown === 'Session terminée'}
+					<p class="text-lg font-semibold">Le cours d'aujourd'hui est terminé</p>
+				{:else if countdown === 'ouvert'}
+					<VideoConference cohort={cohortState.data} />
+				{:else}
+					<p class="text-muted-foreground mb-2">
 						Vous ne pouvez rejoindre la conférence vidéo qu'aux horaires prévus à partir de la date
 						de début du cours.
 					</p>
-					{#if countdown}
-						<p>
-							{countdown === 'Session terminée'
-								? "Le cours d'aujourd'hui est terminé"
-								: `Début dans : ${countdown}`}
-						</p>
-					{/if}
-				{:else}
-					<p class="text-destructive">
-						Vous n'êtes pas autorisé à rejoindre cette conférence vidéo.
+					<p class="text-lg font-semibold">
+						{countdown === 'Session terminée'
+							? "Le cours d'aujourd'hui est terminé"
+							: `Début dans : ${countdown}`}
 					</p>
 				{/if}
 			</Tabs.Content>
