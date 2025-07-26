@@ -194,15 +194,16 @@
 					<p class="text-lg font-semibold">Le cours d'aujourd'hui est terminé</p>
 				{:else if countdown === 'ouvert'}
 					<VideoConference cohort={cohortState.data} />
-				{:else}
-					<p class="text-muted-foreground mb-2">
-						Vous ne pouvez rejoindre la conférence vidéo qu'aux horaires prévus à partir de la date
-						de début du cours.
-					</p>
+				{:else if countdown}
 					<p class="text-lg font-semibold">
 						{countdown === 'Session terminée'
 							? "Le cours d'aujourd'hui est terminé"
-							: `Début dans : ${countdown}`}
+							: `Début du cours dans : ${countdown}`}
+					</p>
+				{:else}
+					<p>
+						Vous ne pouvez rejoindre la conférence vidéo qu'aux horaires prévus à partir de la date
+						de début du cours.
 					</p>
 				{/if}
 			</Tabs.Content>
