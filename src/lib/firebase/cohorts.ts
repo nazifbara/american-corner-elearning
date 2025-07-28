@@ -47,6 +47,30 @@ export async function getCurrentCohort(profile: Profile): Promise<Cohort | null>
 	}
 }
 
+export async function getLearnerCohorts(profile: Profile): Promise<Cohort[]> {
+	try {
+		const cohortIds = Object.keys(profile.cohorts);
+		if (cohortIds.length === 0) {
+			return [];
+		}
+		const cohortPromises = cohortIds.map(async (id) => {
+			const cohortRef = doc(firestore, 'cohorts', id);
+			const snapshot = await getDoc(cohortRef);
+			if (!snapshot.exists) {
+				return null;
+			}
+			return { id: snapshot.id, ...snapshot.data() } as Cohort;
+		});
+		const cohorts = await Promise.all(cohortPromises);
+		return cohorts
+			.filter((cohort): cohort is Cohort => cohort !== null)
+			.sort((a, b) => b.year - a.year || b.number - a.number);
+	} catch (error) {
+		console.error('Error getting learner cohorts:', error);
+		throw new Error('Failed to get learner cohorts');
+	}
+}
+
 export async function updateCohortStartDate(
 	cohortId: string,
 	startDate: string | null

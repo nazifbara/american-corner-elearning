@@ -18,6 +18,11 @@
 
 	const appitems = [
 		{
+			title: 'Mes cohortes',
+			url: `${baseUrl}/cohorts`,
+			icon: BoxIcon
+		},
+		{
 			title: 'Ma cohorte',
 			url: `${baseUrl}/cohort`,
 			icon: BoxIcon
@@ -54,7 +59,7 @@
 
 <Sidebar.Root>
 	<Sidebar.Content>
-		{#if ['learner', 'coach'].includes(authState.profile?.roles[0] ?? '')}
+		{#if ['student', 'coach'].includes(authState.profile?.roles[0] ?? '')}
 			<Sidebar.Group>
 				<Sidebar.GroupLabel>Application</Sidebar.GroupLabel>
 				<Sidebar.GroupContent>
