@@ -3,7 +3,7 @@
 	import { page } from '$app/state';
 	import { getCohort, type Cohort } from '$lib/firebase/cohorts';
 	import { EntityState } from '$lib/state/entity-state.svelte';
-	import { Loader2Icon, PresentationIcon, PlayIcon, ClockIcon } from '@lucide/svelte';
+	import { Loader2Icon, PresentationIcon, PlayIcon, ClockIcon, ArrowLeft } from '@lucide/svelte';
 	import { authState } from '$lib/state/shared.svelte';
 	import { Separator } from '$lib/components/ui/separator';
 	import * as Card from '$lib/components/ui/card';
@@ -13,6 +13,7 @@
 	import { VideoConference } from '$lib/components/video-conference';
 	import dayjs from 'dayjs';
 	import duration from 'dayjs/plugin/duration';
+	import Button from '$lib/components/ui/button/button.svelte';
 	dayjs.extend(duration);
 
 	const cohortId = page.params.cohortId;
@@ -129,7 +130,11 @@
 {:else if !cohortState.data || !allowedUserIds.includes(authState.profile!.uid)}
 	<p class="text-destructive">Cohorte non trouvée.</p>
 {:else}
-	<div class="mx-auto grid max-w-4xl gap-6">
+	<div class="mx-auto grid max-w-4xl gap-4">
+		<Button href="/app/cohorts" variant="outline" class="justify-self-start">
+			<ArrowLeft />
+			Retour à la liste des cohortes</Button
+		>
 		<Card.Root class="grid  gap-6">
 			<Card.Header>
 				<Card.Title class="text-3xl font-normal"
