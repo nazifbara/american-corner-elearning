@@ -1,6 +1,6 @@
 <script lang="ts">
 	import {
-		BookIcon,
+		BookDownIcon,
 		CircleUserIcon,
 		SettingsIcon,
 		LogOutIcon,
@@ -48,7 +48,7 @@
 		{
 			title: 'Ressources',
 			url: `${baseUrl}/admin/resources`,
-			icon: BookIcon
+			icon: BookDownIcon
 		}
 	];
 
