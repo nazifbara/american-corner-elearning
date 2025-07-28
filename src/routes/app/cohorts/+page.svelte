@@ -16,6 +16,11 @@
 	});
 </script>
 
+<h1 class="text-2xl font-bold">Mes cohortes</h1>
+<p class="text-muted-foreground mb-6">
+	Liste de toutes les cohortes auxquelles vous êtes inscrit(e).
+</p>
+
 {#if cohortsState.loading}
 	<div class="flex min-h-[200px] items-center justify-center">
 		<Loader2Icon class="h-8 w-8 animate-spin" />
