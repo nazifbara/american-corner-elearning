@@ -180,20 +180,16 @@ export async function getCohorts() {
 	}
 }
 
-export async function getCohort(param: { number: number; year: number }) {
+export async function getCohort(id: string) {
 	try {
-		const q = query(
-			cohortsRef,
-			where('number', '==', param.number),
-			where('year', '==', param.year)
-		);
-		const querySnapshot = await getDocs(q);
-		if (querySnapshot.empty) {
+		const cohortRef = doc(firestore, 'cohorts', id);
+		const querySnapshot = await getDoc(cohortRef);
+		if (!querySnapshot.exists()) {
 			return null;
 		}
-		const cohortData = querySnapshot.docs[0].data() as Omit<Cohort, 'id'>;
+		const cohortData = querySnapshot.data() as Omit<Cohort, 'id'>;
 		return {
-			id: querySnapshot.docs[0].id,
+			id: querySnapshot.id,
 			...cohortData
 		} as Cohort;
 	} catch (error) {

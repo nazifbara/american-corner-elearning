@@ -1,8 +1,10 @@
 <script lang="ts">
-	import { getCurrentCohort, type Cohort } from '$lib/firebase/cohorts';
-	import { authState } from '$lib/state/shared.svelte';
+	import { onDestroy } from 'svelte';
+	import { page } from '$app/state';
+	import { getCohort, type Cohort } from '$lib/firebase/cohorts';
 	import { EntityState } from '$lib/state/entity-state.svelte';
 	import { Loader2Icon, PresentationIcon, PlayIcon, ClockIcon } from '@lucide/svelte';
+	import { authState } from '$lib/state/shared.svelte';
 	import { Separator } from '$lib/components/ui/separator';
 	import * as Card from '$lib/components/ui/card';
 	import * as Tabs from '$lib/components/ui/tabs';
@@ -13,7 +15,8 @@
 	import duration from 'dayjs/plugin/duration';
 	dayjs.extend(duration);
 
-	const cohortState = new EntityState<Cohort>(() => getCurrentCohort(authState.profile!));
+	const cohortId = page.params.cohortId;
+	const cohortState = new EntityState<Cohort>(() => getCohort(cohortId));
 	const coachState = new EntityState<Profile>(() => Promise.resolve(null));
 	const membersState = new ListHandler<Profile>({
 		fetchFn: () => {
@@ -51,8 +54,6 @@
 		return now.isAfter(window.joinWindowStart) && now.isBefore(window.joinWindowEnd);
 	}
 
-	// Countdown state
-	import { onDestroy } from 'svelte';
 	let countdown = $state('');
 	let countdownInterval: any = null;
 
@@ -125,7 +126,9 @@
 	</div>
 {:else if cohortState.error}
 	<p class="text-destructive">{cohortState.error}</p>
-{:else if cohortState.data}
+{:else if !cohortState.data || !allowedUserIds.includes(authState.profile!.uid)}
+	<p class="text-destructive">Cohorte non trouvée.</p>
+{:else}
 	<div class="mx-auto grid max-w-4xl gap-6">
 		<Card.Root class="grid  gap-6">
 			<Card.Header>

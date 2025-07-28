@@ -31,7 +31,7 @@
 	<ul class="grid auto-rows-fr grid-cols-[repeat(auto-fit,minmax(350px,0px))] gap-4">
 		{#each cohortsState.data as cohort (cohort.id)}
 			<li>
-				<a href={`/app/cohort/${cohort.id}`} class=" block h-[150px]">
+				<a href={`/app/cohorts/${cohort.id}`} class=" block h-[150px]">
 					<Card.Root class="hover:bg-muted h-full transition-colors">
 						<Card.Content class="flex h-full flex-col justify-between">
 							<span class="text-xl font-semibold">Cohort {cohort.number} - {cohort.year}</span>

@@ -23,11 +23,6 @@
 			icon: BoxIcon
 		},
 		{
-			title: 'Ma cohorte',
-			url: `${baseUrl}/cohort`,
-			icon: BoxIcon
-		},
-		{
 			title: 'Profile',
 			url: '#',
 			icon: CircleUserIcon
