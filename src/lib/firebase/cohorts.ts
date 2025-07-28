@@ -126,6 +126,24 @@ export async function updateCohortCoach(cohortId: string, coachId: string) {
 	}
 }
 
+export async function unsasignCohort(cohortId: string, coachId: string) {
+	try {
+		const cohortRef = doc(firestore, 'cohorts', cohortId);
+		const profileRef = doc(firestore, 'profiles', coachId);
+		await Promise.all([
+			updateDoc(cohortRef, {
+				coach: null
+			}),
+			updateDoc(profileRef, {
+				[`assignedCohorts.${cohortId}`]: deleteField()
+			})
+		]);
+	} catch (error) {
+		console.error('Error unsasigning coach:', error);
+		throw new Error('Failed to unsasign coach');
+	}
+}
+
 export async function addParticipant(cohortId: string, userId: string): Promise<void> {
 	try {
 		const cohortRef = doc(firestore, 'cohorts', cohortId);

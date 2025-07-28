@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { Loader2Icon } from '@lucide/svelte';
 	import { getProfile, type Profile } from '$lib/firebase/profiles';
-	import { updateCohortCoach } from '$lib/firebase/cohorts';
+	import { unsasignCohort, updateCohortCoach } from '$lib/firebase/cohorts';
 	import { onMount } from 'svelte';
 	import CoachCombobox from './coach-combobox.svelte';
 
@@ -31,6 +31,9 @@
 	async function handleCoach(coach: Profile) {
 		try {
 			loading = true;
+			if (selectedCoach) {
+				await unsasignCohort(cohortId, selectedCoach.uid);
+			}
 			await updateCohortCoach(cohortId, coach.uid);
 			selectedCoach = coach;
 		} catch (e) {
