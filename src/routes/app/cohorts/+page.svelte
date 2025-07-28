@@ -1,24 +1,34 @@
 <script lang="ts">
 	import * as Card from '$lib/components/ui/card';
-	import { getLearnerCohorts, type Cohort } from '$lib/firebase/cohorts';
+	import { getLearnerCohorts, getCoachCohorts, type Cohort } from '$lib/firebase/cohorts';
 	import { ListHandler } from '$lib/state/list-handler.svelte';
 	import { Loader2Icon, BoxIcon } from '@lucide/svelte';
-
 	import { authState } from '$lib/state/shared.svelte';
 	import { onMount } from 'svelte';
 
-	const cohortsState = new ListHandler<Cohort>({
-		fetchFn: () => getLearnerCohorts(authState.profile!)
-	});
+	const cohortsState = new ListHandler<Cohort>({});
 
 	onMount(() => {
+		if (authState.profile?.roles.includes('coach')) {
+			cohortsState.fetchFn = () => getCoachCohorts(authState.profile!);
+		} else if (authState.profile?.roles.includes('student')) {
+			cohortsState.fetchFn = () => getLearnerCohorts(authState.profile!);
+		} else {
+			cohortsState.fetchFn = () => Promise.resolve([]);
+		}
 		cohortsState.fetch();
 	});
 </script>
 
 <h1 class="text-2xl font-bold">Mes cohortes</h1>
 <p class="text-muted-foreground mb-6">
-	Liste de toutes les cohortes auxquelles vous êtes inscrit(e).
+	{#if authState.profile?.roles.includes('coach')}
+		Liste de toutes les cohortes que vous gérez.
+	{:else if authState.profile?.roles.includes('student')}
+		Liste de toutes les cohortes auxquelles vous êtes inscrit(e).
+	{:else}
+		Aucune cohorte disponible pour votre rôle.
+	{/if}
 </p>
 
 {#if cohortsState.loading}

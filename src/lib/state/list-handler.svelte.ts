@@ -3,12 +3,16 @@ export class ListHandler<T> {
 	#loading = $state(false);
 	#adding = $state(false);
 	#error = $state();
-	#fetchFn: () => Promise<T[]>;
+	#fetchFn?: () => Promise<T[]>;
 	#addFn;
 
-	constructor({ fetchFn, addFn }: { fetchFn: () => Promise<T[]>; addFn?: () => Promise<T> }) {
+	constructor({ fetchFn, addFn }: { fetchFn?: () => Promise<T[]>; addFn?: () => Promise<T> }) {
 		this.#fetchFn = fetchFn;
 		this.#addFn = addFn;
+	}
+
+	set fetchFn(fn: () => Promise<T[]>) {
+		this.#fetchFn = fn;
 	}
 
 	get data() {
@@ -28,6 +32,9 @@ export class ListHandler<T> {
 	}
 
 	async fetch() {
+		if (!this.#fetchFn) {
+			throw new Error('Fetch function is not defined');
+		}
 		try {
 			this.#loading = true;
 			this.#data = await this.#fetchFn();
