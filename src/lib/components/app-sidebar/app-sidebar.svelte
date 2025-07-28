@@ -44,6 +44,11 @@
 			title: 'Utilisateurs',
 			url: `${baseUrl}/admin/users`,
 			icon: UsersIcon
+		},
+		{
+			title: 'Ressources',
+			url: `${baseUrl}/admin/resources`,
+			icon: BookIcon
 		}
 	];
 

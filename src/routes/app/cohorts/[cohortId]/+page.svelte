@@ -144,7 +144,7 @@
 					<div class="flex items-center gap-2">
 						<PresentationIcon size={20} />
 						{#if coachState.loading}
-							<Loader2Icon class="animate-spin" />
+							<Loader2Icon size={20} class="animate-spin" />
 						{:else}
 							<span>{coachState.data?.displayName ?? 'Aucun'}</span>
 						{/if}
