@@ -16,13 +16,6 @@
 	let loading = $state(false);
 	let loginError = $state<string | null>(null);
 
-	onMount(() => {
-		// Redirect to the courses page if the user is logged in
-		if (authState.user) {
-			goto('/app/courses');
-		}
-	});
-
 	async function handleLoginWithEmail() {
 		loading = true;
 		loginError = null;
@@ -34,6 +27,7 @@
 
 		try {
 			await signInWithEmailAndPassword(firebaseAuth, email, password);
+			goto('/app');
 		} catch (error) {
 			console.error('Error logging in with email:', error);
 			loginError = 'Échec de la connexion. Veuillez vérifier vos identifiants.';
