@@ -131,7 +131,7 @@
 	<p class="text-destructive">Cohorte non trouvée.</p>
 {:else}
 	<div class="mx-auto grid max-w-4xl gap-4">
-		<Button href="/app/cohorts" variant="outline" class="justify-self-start">
+		<Button size="sm" href="/app/cohorts" variant="outline" class="justify-self-start">
 			<ArrowLeft />
 			Retour à la liste des cohortes</Button
 		>
