@@ -1,4 +1,4 @@
-export class ListHandler<T> {
+export class EntityList<T> {
 	#data = $state<T[]>([]);
 	#loading = $state(false);
 	#adding = $state(false);

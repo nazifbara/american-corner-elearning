@@ -8,9 +8,9 @@
 	import { onMount } from 'svelte';
 	import { columns } from './columns';
 	import { coachList } from '$lib/state/shared.svelte';
-	import { ListHandler } from '$lib/state/list-handler.svelte';
+	import { EntityList } from '$lib/state/entity-list-state.svelte';
 
-	const cohortList = new ListHandler<Cohort>({
+	const cohortList = new EntityList<Cohort>({
 		fetchFn: getCohorts,
 		addFn: async () => {
 			const year = new Date().getFullYear();

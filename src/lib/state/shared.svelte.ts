@@ -1,6 +1,6 @@
 import { getCoaches, type Profile } from '$lib/firebase/profiles';
 import type { User } from 'firebase/auth';
-import { ListHandler } from './list-handler.svelte';
+import { EntityList } from './entity-list-state.svelte';
 
 type AuthState = {
 	user: User | null;
@@ -13,7 +13,7 @@ type ProfilesState = {
 	profiles: Profile[];
 };
 
-class CoachList extends ListHandler<Profile> {
+class CoachList extends EntityList<Profile> {
 	#initialized = $state(false);
 
 	get data() {

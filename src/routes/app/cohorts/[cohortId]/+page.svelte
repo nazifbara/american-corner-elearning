@@ -9,7 +9,7 @@
 	import * as Card from '$lib/components/ui/card';
 	import * as Tabs from '$lib/components/ui/tabs';
 	import { getProfile, type Profile } from '$lib/firebase/profiles';
-	import { ListHandler } from '$lib/state/list-handler.svelte';
+	import { EntityList } from '$lib/state/entity-list-state.svelte';
 	import { VideoConference } from '$lib/components/video-conference';
 	import dayjs from 'dayjs';
 	import duration from 'dayjs/plugin/duration';
@@ -19,7 +19,7 @@
 	const cohortId = page.params.cohortId;
 	const cohortState = new EntityState<Cohort>(() => getCohort(cohortId));
 	const coachState = new EntityState<Profile>(() => Promise.resolve(null));
-	const membersState = new ListHandler<Profile>({
+	const membersState = new EntityList<Profile>({
 		fetchFn: () => {
 			if (cohortState.data) {
 				const memberIds = Object.keys(cohortState.data.members || {});

@@ -1,12 +1,12 @@
 <script lang="ts">
 	import * as Card from '$lib/components/ui/card';
 	import { getLearnerCohorts, getCoachCohorts, type Cohort } from '$lib/firebase/cohorts';
-	import { ListHandler } from '$lib/state/list-handler.svelte';
+	import { EntityList } from '$lib/state/entity-list-state.svelte';
 	import { Loader2Icon, BoxIcon } from '@lucide/svelte';
 	import { authState } from '$lib/state/shared.svelte';
 	import { onMount } from 'svelte';
 
-	const cohortsState = new ListHandler<Cohort>({});
+	const cohortsState = new EntityList<Cohort>({});
 
 	onMount(() => {
 		if (authState.profile?.roles.includes('coach')) {
