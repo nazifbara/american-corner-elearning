@@ -9,7 +9,7 @@
 		UsersIcon
 	} from '@lucide/svelte';
 	import { firebaseAuth } from '$lib/firebase';
-	import { authState, checkAdmin } from '$lib/state/shared.svelte';
+	import { authState } from '$lib/state/shared.svelte';
 	import { page } from '$app/state';
 
 	import * as Sidebar from '$lib/components/ui/sidebar';
