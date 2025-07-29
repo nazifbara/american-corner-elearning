@@ -1,4 +1,4 @@
-import { collection, addDoc } from 'firebase/firestore';
+import { collection, addDoc, getDocs } from 'firebase/firestore';
 import { firestore } from '.';
 
 export type Resource = {
@@ -19,6 +19,23 @@ export type CreateResource = {
 };
 
 const resourcesRef = collection(firestore, 'resources');
+
+export async function getResources(): Promise<Resource[]> {
+	try {
+		const querySnapshot = await getDocs(resourcesRef);
+		const resources: Resource[] = [];
+		querySnapshot.forEach((doc) => {
+			resources.push({
+				id: doc.id,
+				...doc.data()
+			} as Resource);
+		});
+		return resources;
+	} catch (error) {
+		console.error('Error fetching resources:', error);
+		throw new Error('Failed to fetch resources');
+	}
+}
 
 export async function addResource(data: CreateResource): Promise<Resource> {
 	const docRef = await addDoc(resourcesRef, {
