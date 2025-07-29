@@ -18,10 +18,17 @@
 	async function handleSubmit(event: Event) {
 		event.preventDefault();
 		if (title && url && !resourceList.adding) {
-			await resourceList.add();
-			title = '';
-			url = '';
-			toast.success('Ressource ajoutée avec succès');
+			await resourceList.add({
+				onSuccess: () => {
+					toast.success('Ressource ajoutée avec succès');
+
+					title = '';
+					url = '';
+				},
+				onError: () => {
+					toast.error("Une erreur est survenue lors de l'ajout de la ressource.");
+				}
+			});
 		}
 	}
 </script>
