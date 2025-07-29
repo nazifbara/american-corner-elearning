@@ -32,12 +32,13 @@
 			roles = previousRoles;
 		}
 	}
+	const triggerContent = $derived(
+		items.find((i) => i.value === roles[0])?.label || 'Selectionnez rôle'
+	);
 </script>
 
-<Select.Root type="single" value={roles[0]} onValueChange={(value) => handleRole(value)}>
-	<Select.Trigger
-		>{items.find((i) => i.value === roles[0])?.label || 'Selectionnez rôle'}</Select.Trigger
-	>
+<Select.Root type="single" bind:value={roles[0]} onValueChange={(value) => handleRole(value)}>
+	<Select.Trigger>{triggerContent}</Select.Trigger>
 	<Select.Content>
 		{#each items as role}
 			<Select.Item value={role.value} label={role.label}>

@@ -97,8 +97,8 @@ importers:
         specifier: ^10.5.15
         version: 10.5.15
       bits-ui:
-        specifier: ^2.8.10
-        version: 2.8.10(@internationalized/date@3.8.2)(svelte@5.34.9)
+        specifier: ^2.8.13
+        version: 2.8.13(@internationalized/date@3.8.2)(svelte@5.34.9)
       clsx:
         specifier: ^2.1.1
         version: 2.1.1
@@ -1329,8 +1329,8 @@ packages:
   bignumber.js@9.3.0:
     resolution: {integrity: sha512-EM7aMFTXbptt/wZdMlBv2t8IViwQL+h6SLHosp8Yf0dqJMTnY6iL32opnAB6kAdL0SZPuvcAzFr31o0c/R3/RA==}
 
-  bits-ui@2.8.10:
-    resolution: {integrity: sha512-MOobkqapDZNrpcNmeL2g664xFmH4tZBOKBTxFmsQYMZQuybSZHQnPXy+AjM5XZEXRmCFx5+XRmo6+fC3vHh1hQ==}
+  bits-ui@2.8.13:
+    resolution: {integrity: sha512-YC3DiatZzREdbTZR8IuxbQeYg+/MNcyQeuS6Hycl+ufoG7eiV66qICx210plFER9B776FEYSHXSYuQdlvWODpw==}
     engines: {node: '>=20'}
     peerDependencies:
       '@internationalized/date': ^3.8.1
@@ -4453,7 +4453,7 @@ snapshots:
 
   bignumber.js@9.3.0: {}
 
-  bits-ui@2.8.10(@internationalized/date@3.8.2)(svelte@5.34.9):
+  bits-ui@2.8.13(@internationalized/date@3.8.2)(svelte@5.34.9):
     dependencies:
       '@floating-ui/core': 1.7.2
       '@floating-ui/dom': 1.7.2

@@ -32,7 +32,7 @@
 		"@tailwindcss/vite": "^4.1.7",
 		"@tanstack/table-core": "^8.21.3",
 		"@types/jsrsasign": "^10.5.15",
-		"bits-ui": "^2.8.10",
+		"bits-ui": "^2.8.13",
 		"clsx": "^2.1.1",
 		"eslint": "^9.18.0",
 		"eslint-config-prettier": "^10.0.1",
