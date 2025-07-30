@@ -11,7 +11,7 @@ import {
 } from 'firebase/firestore';
 
 export interface Profile {
-	uid: string;
+	id: string;
 	email: string;
 	displayName: string | null;
 	photoURL: string | null;
@@ -23,8 +23,8 @@ export interface Profile {
 	updatedAt: Date;
 }
 
-export function updateRoles(uid: string, roles: string[]): Promise<void> {
-	const profileRef = doc(firestore, 'profiles', uid) as DocumentReference<Profile>;
+export function updateRoles(id: string, roles: string[]): Promise<void> {
+	const profileRef = doc(firestore, 'profiles', id) as DocumentReference<Profile>;
 	return setDoc(
 		profileRef,
 		{
@@ -35,7 +35,7 @@ export function updateRoles(uid: string, roles: string[]): Promise<void> {
 }
 
 export async function createProfile(profile: Omit<Profile, 'roles'>): Promise<void> {
-	const profileRef = doc(firestore, 'profiles', profile.uid) as DocumentReference<Profile>;
+	const profileRef = doc(firestore, 'profiles', profile.id) as DocumentReference<Profile>;
 	await setDoc(profileRef, {
 		...profile,
 		roles: [],
@@ -44,8 +44,8 @@ export async function createProfile(profile: Omit<Profile, 'roles'>): Promise<vo
 	});
 }
 
-export async function getProfile(uid: string): Promise<Profile | null> {
-	const profileRef = doc(firestore, 'profiles', uid) as DocumentReference<Profile>;
+export async function getProfile(id: string): Promise<Profile | null> {
+	const profileRef = doc(firestore, 'profiles', id) as DocumentReference<Profile>;
 	const profile = await getDoc(profileRef);
 	return profile.exists() ? (profile.data() as Profile) : null;
 }
@@ -59,7 +59,7 @@ export async function getProfiles(except: string[] = []): Promise<Profile[]> {
 	const querySnapshot = await getDocs(q);
 	querySnapshot.forEach((doc) => {
 		profiles.push({
-			uid: doc.id,
+			id: doc.id,
 			...doc.data()
 		} as Profile);
 	});
@@ -74,7 +74,7 @@ export async function getStudents(): Promise<Profile[]> {
 	const querySnapshot = await getDocs(q);
 	querySnapshot.forEach((doc) => {
 		profiles.push({
-			uid: doc.id,
+			id: doc.id,
 			...doc.data()
 		} as Profile);
 	});
@@ -89,7 +89,7 @@ export async function getCoaches(): Promise<Profile[]> {
 	const querySnapshot = await getDocs(q);
 	querySnapshot.forEach((doc) => {
 		profiles.push({
-			uid: doc.id,
+			id: doc.id,
 			...doc.data()
 		} as Profile);
 	});

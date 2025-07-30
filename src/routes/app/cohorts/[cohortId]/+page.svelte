@@ -127,7 +127,7 @@
 	</div>
 {:else if cohortState.error}
 	<p class="text-destructive">{cohortState.error}</p>
-{:else if !cohortState.data || !allowedUserIds.includes(authState.profile!.uid)}
+{:else if !cohortState.data || !allowedUserIds.includes(authState.user?.uid)}
 	<p class="text-destructive">Cohorte non trouvée.</p>
 {:else}
 	<div class="mx-auto grid max-w-4xl gap-4">
