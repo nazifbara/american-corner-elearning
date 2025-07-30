@@ -14,7 +14,7 @@
 	import { Input } from '$lib/components/ui/input';
 	import { Button } from '$lib/components/ui/button';
 	import { EntityList } from '$lib/state/entity-list-state.svelte';
-	import { addResource, getResources } from '$lib/firebase/resources';
+	import { addResource, getResources, updateResource } from '$lib/firebase/resources';
 	import { authState } from '$lib/state/shared.svelte';
 	import { onMount } from 'svelte';
 
@@ -24,15 +24,34 @@
 
 	const resourceList = new EntityList({
 		addFn: () => addResource({ title, url, creatorId: authState.user!.uid }),
-		fetchFn: getResources
+		fetchFn: getResources,
+		updateFn: updateResource
 	});
 
 	onMount(() => {
 		resourceList.fetch();
 	});
 
-	function handleResourceEdit() {
-		console.log('Editing resource:', resourceToEdit);
+	async function handleResourceEdit() {
+		if (resourceToEdit) {
+			await resourceList.update(
+				resourceToEdit.id,
+				{
+					title: resourceToEdit.title,
+					url: resourceToEdit.url
+				},
+				{
+					onSuccess: () => {
+						toast.success('Ressource modifiée avec succès');
+						resourceToEdit = null;
+					},
+					onError: () => {
+						toast.error('Une erreur est survenue lors de la modification de la ressource.');
+					}
+				}
+			);
+		}
+		resourceToEdit = null;
 	}
 
 	async function handleSubmit(event: Event) {
@@ -116,24 +135,31 @@
 									bind:value={resourceToEdit.title}
 									placeholder="Modifier le titre..."
 									class="w-full"
+									disabled={resourceList.updating}
 								/>
 								<Input
 									type="url"
 									bind:value={resourceToEdit.url}
 									placeholder="Modifier l'URL..."
 									class="w-full"
+									disabled={resourceList.updating}
 								/>
 								<div class="flex items-center gap-2">
 									<Button size="icon" type="submit" aria-label="Enregistrer les modifications">
-										<CheckIcon size={16} />
+										{#if resourceList.updating}
+											<Loader2Icon size={20} class="animate-spin" />
+										{:else}
+											<CheckIcon size={20} />
+										{/if}
 									</Button>
 									<Button
 										size="icon"
 										variant="outline"
 										aria-label="Annuler les modifications"
 										onclick={() => (resourceToEdit = null)}
+										disabled={resourceList.updating}
 									>
-										<XIcon size={16} />
+										<XIcon size={20} />
 									</Button>
 								</div>
 							</form>

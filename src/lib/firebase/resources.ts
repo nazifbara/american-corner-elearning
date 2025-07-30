@@ -1,4 +1,4 @@
-import { collection, addDoc, getDocs } from 'firebase/firestore';
+import { collection, addDoc, getDocs, getDoc, updateDoc, doc } from 'firebase/firestore';
 import { firestore } from '.';
 
 export type Resource = {
@@ -19,6 +19,24 @@ export type CreateResource = {
 };
 
 const resourcesRef = collection(firestore, 'resources');
+
+export async function updateResource(id: string, data: Partial<Resource>): Promise<Resource> {
+	try {
+		const resourceRef = doc(firestore, 'resources', id);
+		await updateDoc(resourceRef, {
+			...data,
+			updatedAt: new Date()
+		});
+		const updatedDoc = await getDoc(resourceRef);
+		return {
+			id: updatedDoc.id,
+			...updatedDoc.data()
+		} as Resource;
+	} catch (error) {
+		console.error('Error updating resource:', error);
+		throw new Error('Failed to update resource');
+	}
+}
 
 export async function getResources(): Promise<Resource[]> {
 	try {
