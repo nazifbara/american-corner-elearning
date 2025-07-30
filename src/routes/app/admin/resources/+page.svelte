@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { PlusIcon, Loader2Icon, RotateCcwIcon } from '@lucide/svelte';
+	import { PlusIcon, Loader2Icon, RotateCcwIcon, YoutubeIcon, PenIcon } from '@lucide/svelte';
 	import { toast } from 'svelte-sonner';
 
 	import { Input } from '$lib/components/ui/input';
@@ -39,31 +39,35 @@
 	}
 </script>
 
-<div class="mx-auto grid max-w-4xl">
-	<h1 class="mb-4 text-2xl">Gestion des ressources</h1>
-	<form class="mb-6 flex items-center gap-2" onsubmit={handleSubmit}>
-		<Input
-			type="text"
-			bind:value={title}
-			required
-			placeholder="Donnez un titre à la video youtube..."
-			disabled={resourceList.adding}
-		/>
-		<Input
-			type="url"
-			bind:value={url}
-			required
-			placeholder="Ajouter l'URL de la video youtube..."
-			disabled={resourceList.adding}
-		/>
-		<Button size="icon" type="submit" aria-label="Ajouter">
-			{#if resourceList.adding}
-				<Loader2Icon size={20} class="animate-spin" />
-			{:else}
-				<PlusIcon size={20} />
-			{/if}
-		</Button>
-	</form>
+<div class="mx-auto grid max-w-4xl gap-6">
+	<h1 class="text-2xl">Gestion des ressources</h1>
+
+	<div>
+		<h2 class="mb-2 text-lg">Ajouter une ressource</h2>
+		<form class="flex items-center gap-2" onsubmit={handleSubmit}>
+			<Input
+				type="text"
+				bind:value={title}
+				required
+				placeholder="Donnez un titre à la video youtube..."
+				disabled={resourceList.adding}
+			/>
+			<Input
+				type="url"
+				bind:value={url}
+				required
+				placeholder="Ajouter l'URL de la video youtube..."
+				disabled={resourceList.adding}
+			/>
+			<Button size="icon" type="submit" aria-label="Ajouter">
+				{#if resourceList.adding}
+					<Loader2Icon size={20} class="animate-spin" />
+				{:else}
+					<PlusIcon size={20} />
+				{/if}
+			</Button>
+		</form>
+	</div>
 
 	{#if resourceList.loading}
 		<div class="flex min-h-[200px] items-center justify-center">
@@ -80,12 +84,23 @@
 	{:else if resourceList.data.length === 0}
 		<div class="text-muted-foreground text-center">Aucune ressource trouvée.</div>
 	{:else}
-		<ul class="list-disc pl-5">
-			{#each resourceList.data as resource}
-				<li class="mb-2">
-					{resource.title}
-				</li>
-			{/each}
-		</ul>
+		<div>
+			<h2 class="mb-2 text-lg">Liste des ressources</h2>
+			<ul class="">
+				{#each resourceList.data as resource}
+					<li class="grid grid-cols-[auto_1fr] items-start gap-2 border-b p-2">
+						<Button title="modidier" size="icon" variant="outline" aria-label="modifier"
+							><PenIcon size={16} /></Button
+						>
+						<span>
+							<span>{resource.title}</span>
+							<span class="text-muted-foreground flex items-center gap-1 text-xs font-semibold">
+								<YoutubeIcon size={14} /> youtube</span
+							>
+						</span>
+					</li>
+				{/each}
+			</ul>
+		</div>
 	{/if}
 </div>
