@@ -3,7 +3,15 @@
 	import { page } from '$app/state';
 	import { getCohort, type Cohort } from '$lib/firebase/cohorts';
 	import { EntityState } from '$lib/state/entity-state.svelte';
-	import { Loader2Icon, PresentationIcon, PlayIcon, ClockIcon, ArrowLeft } from '@lucide/svelte';
+	import {
+		Loader2Icon,
+		PresentationIcon,
+		PlayIcon,
+		ClockIcon,
+		ArrowLeft,
+		UserIcon
+	} from '@lucide/svelte';
+	import * as Avatar from '$lib/components/ui/avatar';
 	import { authState } from '$lib/state/shared.svelte';
 	import { Separator } from '$lib/components/ui/separator';
 	import * as Card from '$lib/components/ui/card';
@@ -14,6 +22,9 @@
 	import dayjs from 'dayjs';
 	import duration from 'dayjs/plugin/duration';
 	import Button from '$lib/components/ui/button/button.svelte';
+	import ResourcesCombobox from './resources-combobox.svelte';
+	import type { Resource } from '$lib/firebase/resources';
+	import Textarea from '$lib/components/ui/textarea/textarea.svelte';
 	dayjs.extend(duration);
 
 	const cohortId = page.params.cohortId;
@@ -28,6 +39,9 @@
 			return Promise.resolve([]);
 		}
 	});
+
+	let selectedResource: Resource | null = $state(null);
+	$inspect(selectedResource, 'selectedResource');
 
 	let allowedUserIds = $derived.by(() => {
 		return [cohortState.data?.coach, ...Object.keys(cohortState.data?.members || {})];
@@ -130,12 +144,12 @@
 {:else if !cohortState.data || !allowedUserIds.includes(authState.user?.uid)}
 	<p class="text-destructive">Cohorte non trouvée.</p>
 {:else}
-	<div class="mx-auto grid max-w-4xl gap-4">
+	<div class="mx-auto grid max-w-2xl gap-4">
 		<Button size="sm" href="/app/cohorts" variant="outline" class="justify-self-start">
 			<ArrowLeft />
 			Retour à la liste des cohortes</Button
 		>
-		<Card.Root class="grid  gap-6">
+		<Card.Root class="grid gap-6">
 			<Card.Header>
 				<Card.Title class="text-3xl font-normal"
 					>Cohorte {cohortState.data.number} - {cohortState.data.year}</Card.Title
@@ -182,10 +196,10 @@
 			</Card.Content>
 		</Card.Root>
 
-		<Tabs.Root value="course" class="gap-4">
+		<Tabs.Root value="resources" class="gap-4">
 			<Tabs.List class="w-full">
 				<Tabs.Trigger value="course">Cours</Tabs.Trigger>
-				<Tabs.Trigger value="posts">Posts</Tabs.Trigger>
+				<Tabs.Trigger value="resources">Ressources</Tabs.Trigger>
 				<Tabs.Trigger value="exercices">Exercices</Tabs.Trigger>
 				<Tabs.Trigger value="grades">Notes</Tabs.Trigger>
 				<Tabs.Trigger value="members">Membres</Tabs.Trigger>
@@ -215,7 +229,46 @@
 					</p>
 				{/if}
 			</Tabs.Content>
-			<Tabs.Content value="resources">Liste des ressources</Tabs.Content>
+			<Tabs.Content value="resources">
+				<div>
+					<h2 class="mb-2 text-xl font-semibold">Ressources</h2>
+					<p class="text-muted-foreground mb-4">
+						Liste des ressources partagées pour cette cohorte.
+					</p>
+				</div>
+
+				{#if cohortState.data.coach === authState.user?.uid}
+					<Card.Root>
+						<Card.Content>
+							<div class="grid grid-cols-[auto_1fr] items-start gap-2">
+								<div>
+									{#if coachState.loading}
+										<Loader2Icon size={20} class="h-6 w-6 animate-spin" />
+									{:else}
+										<Avatar.Root class="h-6 w-6">
+											<Avatar.Fallback>
+												{coachState.data ? coachState.data.displayName[0].toUpperCase() : 'C'}
+											</Avatar.Fallback>
+										</Avatar.Root>
+									{/if}
+								</div>
+								<form class="grid gap-2">
+									<Textarea class="h-[80px] " />
+									<ResourcesCombobox bind:selectedResource />
+									<Button
+										type="submit"
+										variant="outline"
+										class="justify-self-end"
+										disabled={!selectedResource}
+									>
+										Poster ressource
+									</Button>
+								</form>
+							</div>
+						</Card.Content>
+					</Card.Root>
+				{/if}
+			</Tabs.Content>
 			<Tabs.Content value="exercices">Liste des exercices</Tabs.Content>
 			<Tabs.Content value="grades">List des notes</Tabs.Content>
 			<Tabs.Content value="members">

@@ -18,6 +18,7 @@ export type Cohort = {
 	year: number;
 	coach: string | null;
 	members: Record<string, true>;
+	resources?: Record<string, { description: string; creatorId: string; name: string }>;
 	schedules: Record<number, string | null>;
 	startDate: string | null;
 };

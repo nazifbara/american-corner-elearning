@@ -13,7 +13,7 @@ import {
 export interface Profile {
 	id: string;
 	email: string;
-	displayName: string | null;
+	displayName: string;
 	photoURL: string | null;
 	courses: Record<string, true>;
 	cohorts: Record<string, true>;

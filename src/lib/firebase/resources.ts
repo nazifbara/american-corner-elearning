@@ -8,6 +8,7 @@ export type Resource = {
 	url: string;
 	type: 'youtube-video';
 	tags: string[];
+	cohorts?: Record<string, true>;
 	createdAt: Date;
 	updatedAt: Date;
 };

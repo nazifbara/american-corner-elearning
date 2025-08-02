@@ -16,11 +16,11 @@
 
 	let { selectedCoach = $bindable(), onChange }: Props = $props();
 	let items = $derived(
-		coachList.initialized ? coachList.data.map((c) => ({ value: c.uid, label: c.displayName })) : []
+		coachList.initialized ? coachList.data.map((c) => ({ value: c.id, label: c.displayName })) : []
 	);
 
 	let open = $state(false);
-	let value = $state(selectedCoach?.uid || '');
+	let value = $state(selectedCoach?.id || '');
 	let triggerRef = $state<HTMLButtonElement>(null!);
 	const selectedValue = $derived(items.find((f) => f.value === value)?.label);
 
@@ -61,7 +61,7 @@
 							value={item.value}
 							onSelect={() => {
 								value = item.value;
-								onChange?.(coachList.data.find((c) => c.uid === item.value)!);
+								onChange?.(coachList.data.find((c) => c.id === item.value)!);
 								closeAndFocusTrigger();
 							}}
 						>
